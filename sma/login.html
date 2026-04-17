@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Login SIAKAD</title>
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+body{
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ height:100vh;
+ background:#1e2235;
+ font-family:Arial;
+}
+
+.login-box{
+ background:#2b3048;
+ padding:40px;
+ border-radius:15px;
+ width:350px;
+ text-align:center;
+ box-shadow:0 15px 30px rgba(0,0,0,0.4);
+}
+
+.login-box img{
+ width:80px;
+ margin-bottom:15px;
+}
+
+.login-box h2{
+ margin-bottom:25px;
+}
+
+.form-group{
+ text-align:left;
+ margin-bottom:15px;
+}
+
+.form-group label{
+ display:block;
+ margin-bottom:5px;
+}
+
+.form-group input{
+ width:100%;
+ padding:12px;
+ border-radius:8px;
+ border:none;
+ outline:none;
+}
+
+.login-btn{
+ width:100%;
+ padding:12px;
+ background:#27ae60;
+ border:none;
+ border-radius:8px;
+ color:white;
+ font-size:16px;
+ cursor:pointer;
+ transition:0.3s;
+}
+
+.login-btn:hover{
+ background:#219150;
+ transform:scale(1.03);
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="login-box">
+
+<img src="/img/Logo.jpeg">
+
+<h2>SMA N1 PRAYA BARAT</h2>
+
+<div class="form-group">
+<label>Username</label>
+<input id="user">
+</div>
+
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="pass">
+</div>
+
+<button class="login-btn" onclick="login()">Login</button>
+
+</div>
+
+<script>
+
+async function login(){
+
+ const r = await fetch("http://127.0.0.1:5000/login",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+   username:user.value,
+   password:pass.value
+  })
+ })
+
+ const d = await r.json()
+
+ if(!d.ok){
+  alert("Login gagal")
+  return
+ }
+
+ localStorage.setItem("username", user.value)
+
+ if(d.role=="admin") location="/sma/admin.html"
+ if(d.role=="guru") location="/sma/guru.html"
+ if(d.role=="siswa") location="/sma/siswa.html"
+
+}
+
+</script>
+
+</body>
+</html>

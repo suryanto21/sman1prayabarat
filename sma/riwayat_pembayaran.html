@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Riwayat Pembayaran</title>
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+
+<div class="content">
+
+<h2>Riwayat Pembayaran</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>NIS</th>
+<th>Nama</th>
+<th>Jumlah</th>
+</tr>
+</thead>
+
+<tbody id="data"></tbody>
+
+</table>
+
+</div>
+
+<script>
+
+async function load(){
+
+ const r = await fetch("http://127.0.0.1:5000/get-pembayaran")
+
+ const d = await r.json()
+
+ let html=""
+
+ d.forEach(p=>{
+
+ html+=`
+ <tr>
+ <td>${p.nis}</td>
+ <td>${p.nama}</td>
+ <td>${p.jumlah}</td>
+ </tr>
+ `
+ })
+
+ data.innerHTML=html
+
+}
+
+load()
+
+</script>
+
+</body>
+</html>

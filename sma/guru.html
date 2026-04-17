@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Dashboard Guru</title>
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+<img src="/img/Logo.jpeg">
+</div>
+
+<h2>SMA N1 PRAYA BARAT</h2>
+
+<a href="guru.html">Dashboard</a>
+<a href="lihat_jadwal.html">Lihat Jadwal</a>
+<a href="presensi_guru.html">Presensi Siswa</a>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+
+<div class="main">
+
+<h1>Dashboard Guru</h1>
+
+<div class="cards">
+
+<div class="card">
+<h3>Jadwal</h3>
+<p>Lihat Jadwal Mengajar</p>
+</div>
+
+<div class="card">
+<h3>Presensi</h3>
+<p>Input Presensi Siswa</p>
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+function logout(){
+ localStorage.clear()
+ location.href="login.html"
+}
+
+</script>
+
+</body>
+</html>

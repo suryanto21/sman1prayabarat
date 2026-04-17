@@ -1,0 +1,223 @@
+body{
+ font-family: Arial, sans-serif;
+ margin:0;
+ background:#1e2235;
+ color:white;
+ display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+ width:230px;
+ height:100vh;
+ background:#272b3d;
+ padding:20px;
+ position:fixed;
+}
+
+.sidebar h2{
+ text-align:center;
+ margin-bottom:30px;
+}
+
+.sidebar a{
+ display:block;
+ padding:12px;
+ margin:6px 0;
+ text-decoration:none;
+ color:white;
+ background:#3498db;
+ border-radius:6px;
+ transition:0.3s;
+}
+
+.sidebar a:hover{
+ background:#2980b9;
+ transform:translateX(5px);
+}
+
+/* MAIN */
+
+.main{
+ margin-left:250px;
+ padding:30px;
+ width:100%;
+}
+
+/* TOPBAR */
+
+.topbar{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ margin-bottom:30px;
+}
+
+.topbar h1{
+ margin:0;
+}
+
+/* CARDS */
+
+.cards{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+ gap:20px;
+}
+
+.card{
+ background:#272b3d;
+ padding:25px;
+ border-radius:10px;
+ text-align:center;
+ box-shadow:0 10px 20px rgba(0,0,0,0.3);
+}
+
+.card h3{
+ margin:0;
+ font-size:28px;
+}
+
+.card p{
+ margin-top:10px;
+ color:#aaa;
+}
+
+/* FORM */
+
+label{
+ display:block;
+ margin-top:10px;
+}
+
+input,select{
+ width:250px;
+ padding:10px;
+ margin-top:5px;
+ border:none;
+ border-radius:5px;
+}
+
+/* BUTTON */
+
+button{
+ padding:10px 20px;
+ margin-top:15px;
+ background:#27ae60;
+ border:none;
+ border-radius:6px;
+ color:white;
+ cursor:pointer;
+}
+
+button:hover{
+ background:#219150;
+}
+
+/* TABLE */
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ background:#272b3d;
+ margin-top:20px;
+}
+
+table th,table td{
+ padding:10px;
+ border-bottom:1px solid #444;
+}
+
+table th{
+ background:#3498db;
+}
+
+/* LOGO */
+
+.logo{
+ text-align:center;
+ margin-bottom:20px;
+}
+
+.logo img{
+ width:70px;
+}
+
+/* FORM CENTER */
+
+.form-container{
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ min-height:80vh;
+}
+
+.form-box{
+ background:#272b3d;
+ padding:30px;
+ border-radius:10px;
+ width:350px;
+ box-shadow:0 10px 20px rgba(0,0,0,0.3);
+ text-align:left;
+}
+
+.form-box h2{
+ text-align:center;
+ margin-bottom:20px;
+}
+
+.form-box input,
+.form-box select{
+ width:100%;
+}
+
+.form-box button{
+ width:100%;
+}
+
+
+/* TABLE jadi scroll di HP */
+@media(max-width:768px){
+
+ body{
+  padding:10px;
+ }
+
+ table{
+  display:block;
+  overflow-x:auto;
+  white-space:nowrap;
+ }
+
+ th,td{
+  font-size:12px;
+ }
+
+ button{
+  font-size:12px;
+  padding:5px;
+ }
+
+ h2{
+  font-size:18px;
+ }
+
+}
+
+/* EXTRA KECIL (HP kecil) */
+@media(max-width:480px){
+
+ h2{
+  font-size:16px;
+ }
+
+ th,td{
+  font-size:11px;
+ }
+
+ button{
+  font-size:11px;
+ }
+
+}

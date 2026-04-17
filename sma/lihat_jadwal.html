@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Jadwal Pelajaran</title>
+
+<style>
+
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ color:white;
+ padding:30px;
+}
+
+/* TITLE */
+
+h2{
+ margin-bottom:20px;
+}
+
+/* TABLE */
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ background:#2b3048;
+ border-radius:10px;
+ overflow:hidden;
+ box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+thead{
+ background:#3498db;
+}
+
+th{
+ padding:15px;
+ text-align:left;
+}
+
+td{
+ padding:12px;
+ border-bottom:1px solid #3a3f5a;
+}
+
+/* ZEBRA */
+
+tbody tr:nth-child(even){
+ background:#252a40;
+}
+
+/* HOVER */
+
+tbody tr:hover{
+ background:#3a3f5a;
+ transition:0.3s;
+}
+
+/* FIX UNDEFINED */
+
+.empty{
+ color:#aaa;
+ font-style:italic;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>Jadwal Pelajaran</h2>
+
+<table>
+
+<thead>
+<tr>
+<th>Kelas</th>
+<th>Mapel</th>
+<th>Guru</th>
+<th>Hari</th>
+<th>Jam</th>
+</tr>
+</thead>
+
+<tbody id="data"></tbody>
+
+</table>
+
+<script>
+
+async function load(){
+
+ const r = await fetch("http://127.0.0.1:5000/get-jadwal")
+ const d = await r.json()
+
+ let html=""
+
+ d.forEach(j => {
+
+  html += `
+  <tr>
+   <td>${j.kelas || '<span class="empty">-</span>'}</td>
+   <td>${j.mapel || '<span class="empty">-</span>'}</td>
+   <td>${j.guru || '<span class="empty">-</span>'}</td>
+   <td>${j.hari || '<span class="empty">-</span>'}</td>
+   <td>${j.jam || '<span class="empty">-</span>'}</td>
+  </tr>
+  `
+ })
+
+ document.getElementById("data").innerHTML = html
+
+}
+
+load()
+
+</script>
+
+</body>
+</html>

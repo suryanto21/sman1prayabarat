@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Dashboard Siswa</title>
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+<div class="logo">
+<img src="/img/Logo.jpeg">
+</div>
+
+<h2>SMA N1 PRAYA BARAT</h2>
+
+<a href="siswa.html">Dashboard</a>
+<a href="biodata_siswa.html">Biodata</a>
+<a href="jadwal.html">Jadwal</a>
+<a href="presensi_siswa.html">Presensi</a>
+<a href="pembayaran.html">Pembayaran</a>
+<a href="riwayat_pembayaran.html">Riwayat Pembayaran</a>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+
+<div class="main">
+
+<div class="topbar">
+<h1 id="nama"></h1>
+</div>
+
+<div class="cards">
+
+<div class="card">
+<h3>Jadwal</h3>
+<p>Lihat Jadwal Pelajaran</p>
+</div>
+
+<div class="card">
+<h3>Presensi</h3>
+<p>Lihat Presensi</p>
+</div>
+
+<div class="card">
+<h3>Pembayaran</h3>
+<p>Riwayat Pembayaran</p>
+</div>
+
+</div>
+
+<h3>Biodata Siswa</h3>
+
+<div class="card">
+<div id="biodata"></div>
+</div>
+
+</div>
+
+
+<script>
+
+async function load(){
+
+ const nis = localStorage.getItem("username")
+
+ const r = await fetch("http://127.0.0.1:5000/get-biodata-siswa/"+nis)
+
+ const d = await r.json()
+
+ document.getElementById("nama").innerHTML =
+ "Selamat Datang, " + d.nama
+
+ document.getElementById("biodata").innerHTML = `
+ NIS : ${d.nis}<br>
+ Nama : ${d.nama}<br>
+ Kelas : ${d.kelas}<br>
+ Wali Kelas : ${d.wali_kelas}<br>
+ Alamat : ${d.alamat}
+ `
+
+}
+
+load()
+
+
+function logout(){
+
+ localStorage.clear()
+ location.href="login.html"
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Input Jadwal</title>
+<link rel="stylesheet" href="/css/style.css">
+
+</head>
+<body>
+
+<div class="content">
+
+<h2>Input Jadwal</h2>
+
+<form>
+
+<label>Kelas</label>
+<input id="kelas">
+
+<label>Mata Pelajaran</label>
+<input id="mapel">
+
+<label>Guru</label>
+<input id="guru">
+
+<label>Hari</label>
+<input id="hari">
+
+<label>Jam</label>
+<input id="jam">
+
+<button type="button" onclick="simpan()">Simpan</button>
+
+</form>
+
+</div>
+
+<script>
+
+async function simpan(){
+
+ const data={
+  kelas:kelas.value,
+  mapel:mapel.value,
+  guru:guru.value,
+  hari:hari.value,
+  jam:jam.value
+ }
+
+ const r=await fetch("http://127.0.0.1:5000/tambah-jadwal",{
+
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify(data)
+
+ })
+
+ const d=await r.json()
+
+ alert(d.msg)
+
+}
+
+</script>
+
+</body>
+</html>

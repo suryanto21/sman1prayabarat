@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Pembayaran</title>
+
+<style>
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ height:100vh;
+ color:white;
+}
+
+.form-card{
+ background:#2b3048;
+ padding:30px;
+ border-radius:15px;
+ width:380px;
+ box-shadow:0 15px 30px rgba(0,0,0,0.4);
+}
+
+.form-card h2{
+ text-align:center;
+ margin-bottom:20px;
+}
+
+.form-group{
+ margin-bottom:15px;
+}
+
+.form-group input{
+ width:100%;
+ padding:12px;
+ border-radius:8px;
+ border:none;
+}
+
+button{
+ width:100%;
+ padding:12px;
+ background:#27ae60;
+ border:none;
+ border-radius:8px;
+ color:white;
+ cursor:pointer;
+}
+
+button:hover{
+ background:#219150;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="form-card">
+
+<h2>Pembayaran</h2>
+
+<div class="form-group">
+<label>NIS</label>
+<input id="nis">
+</div>
+
+<div class="form-group">
+<label>Nama</label>
+<input id="nama">
+</div>
+
+<div class="form-group">
+<label>Jumlah Bayar</label>
+<input id="jumlah">
+</div>
+
+<button onclick="bayar()">Bayar</button>
+
+</div>
+
+<script>
+
+async function bayar(){
+
+ const data={
+  nis:nis.value,
+  nama:nama.value,
+  jumlah:jumlah.value
+ }
+
+ const r=await fetch("http://127.0.0.1:5000/pembayaran",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify(data)
+ })
+
+ const d=await r.json()
+
+ alert(d.msg)
+
+ nis.value=""
+ nama.value=""
+ jumlah.value=""
+
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Dashboard Admin</title>
+
+<style>
+
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ color:white;
+ display:flex;
+}
+
+/* SIDEBAR */
+
+.sidebar{
+ width:230px;
+ height:100vh;
+ background:#272b3d;
+ padding:20px;
+ position:fixed;
+}
+
+.sidebar h2{
+ text-align:center;
+ font-size:16px;
+ margin-bottom:20px;
+}
+
+.sidebar a{
+ display:block;
+ padding:12px;
+ margin:6px 0;
+ text-decoration:none;
+ color:white;
+ background:#3498db;
+ border-radius:6px;
+ transition:0.3s;
+}
+
+.sidebar a:hover{
+ background:#2980b9;
+ transform:translateX(5px);
+}
+
+.sidebar button{
+ width:100%;
+ padding:10px;
+ margin-top:20px;
+ background:#e74c3c;
+ border:none;
+ border-radius:6px;
+ color:white;
+ cursor:pointer;
+}
+
+/* LOGO */
+
+.logo{
+ text-align:center;
+ margin-bottom:15px;
+}
+
+.logo img{
+ width:70px;
+}
+
+/* MAIN */
+
+.main{
+ margin-left:250px;
+ padding:30px;
+ width:100%;
+}
+
+/* TOPBAR */
+
+.topbar{
+ margin-bottom:30px;
+}
+
+/* CARDS */
+
+.cards{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+ gap:20px;
+}
+
+/* CARD LINK */
+
+.card{
+ display:block;
+ text-decoration:none;
+ color:white;
+ background:#2b3048;
+ padding:30px;
+ border-radius:12px;
+ text-align:center;
+ transition:0.3s;
+ box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+.card:hover{
+ background:#3498db;
+ transform:translateY(-5px);
+}
+
+.card h3{
+ margin:0;
+ font-size:26px;
+}
+
+.card p{
+ margin-top:10px;
+ color:#ccc;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<!-- SIDEBAR -->
+<div class="sidebar">
+
+<div class="logo">
+<img src="/img/Logo.jpeg">
+</div>
+
+<h2>SMA N1 PRAYA BARAT</h2>
+
+<a href="admin.html">Dashboard</a>
+<a href="tambah_siswa.html">Tambah Siswa</a>
+<a href="tambah_guru.html">Tambah Guru</a>
+<a href="jadwal_admin.html">Input Jadwal</a>
+<a href="jadwal_guru.html">Jadwal Guru</a>
+<a href="presensi_guru_admin.html">Presensi Guru</a>
+<a href="pembayaran.html">Pembayaran</a>
+
+<button onclick="logout()">Logout</button>
+
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+<div class="topbar">
+<h1>Dashboard Admin</h1>
+</div>
+
+<div class="cards">
+
+<!-- CARD 1 -->
+<a href="jadwal_admin.html" class="card">
+<h3>DATA</h3>
+<p>Sistem Akademik</p>
+</a>
+
+<!-- CARD 2 -->
+<a href="kelola_data.html" class="card">
+<h3>KELOLA</h3>
+<p>Siswa & Guru</p>
+</a>
+</div>
+
+</div>
+
+<script>
+
+function logout(){
+ localStorage.clear()
+ location.href="login.html"
+}
+
+</script>
+
+</body>
+</html>

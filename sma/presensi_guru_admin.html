@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Presensi Guru</title>
+
+<style>
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ height:100vh;
+ color:white;
+}
+
+.form-card{
+ background:#2b3048;
+ padding:30px;
+ border-radius:15px;
+ width:380px;
+ box-shadow:0 15px 30px rgba(0,0,0,0.4);
+}
+
+.form-card h2{
+ text-align:center;
+}
+
+.form-group{
+ margin-bottom:15px;
+}
+
+.form-group input,
+.form-group select{
+ width:100%;
+ padding:12px;
+ border-radius:8px;
+ border:none;
+}
+
+button{
+ width:100%;
+ padding:12px;
+ background:#27ae60;
+ border:none;
+ border-radius:8px;
+ color:white;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="form-card">
+
+<h2>Presensi Guru</h2>
+
+<div class="form-group">
+<label>NIP</label>
+<input id="nip">
+</div>
+
+<div class="form-group">
+<label>Nama Guru</label>
+<input id="nama">
+</div>
+
+<div class="form-group">
+<label>Status</label>
+<select id="status">
+<option>Hadir</option>
+<option>Izin</option>
+<option>Sakit</option>
+<option>Alpha</option>
+</select>
+</div>
+
+<button onclick="simpan()">Simpan</button>
+
+</div>
+
+<script>
+
+async function simpan(){
+
+ const data={
+  nip:nip.value,
+  nama:nama.value,
+  status:status.value
+ }
+
+ const r=await fetch("http://127.0.0.1:5000/presensi-guru",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify(data)
+ })
+
+ const d=await r.json()
+
+ alert(d.msg)
+
+ nip.value=""
+ nama.value=""
+ status.value="Hadir"
+
+}
+
+</script>
+
+</body>
+</html>

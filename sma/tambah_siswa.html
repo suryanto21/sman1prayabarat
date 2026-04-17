@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Tambah Siswa</title>
+
+<style>
+
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ height:100vh;
+ color:white;
+}
+
+/* CARD */
+
+.form-card{
+ background:#2b3048;
+ padding:30px;
+ border-radius:15px;
+ width:380px;
+ box-shadow:0 15px 30px rgba(0,0,0,0.4);
+}
+
+.form-card h2{
+ text-align:center;
+ margin-bottom:20px;
+}
+
+/* FORM */
+
+.form-group{
+ margin-bottom:15px;
+}
+
+.form-group label{
+ display:block;
+ margin-bottom:5px;
+}
+
+.form-group input{
+ width:100%;
+ padding:12px;
+ border-radius:8px;
+ border:none;
+ outline:none;
+}
+
+/* BUTTON */
+
+button{
+ width:100%;
+ padding:12px;
+ margin-top:10px;
+ background:#27ae60;
+ border:none;
+ border-radius:8px;
+ color:white;
+ font-size:16px;
+ cursor:pointer;
+ transition:0.3s;
+}
+
+button:hover{
+ background:#219150;
+ transform:scale(1.03);
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="form-card">
+
+<h2>Tambah Siswa</h2>
+
+<div class="form-group">
+<label>NIS</label>
+<input id="nis">
+</div>
+
+<div class="form-group">
+<label>Password</label>
+<input type="password" id="password">
+</div>
+
+<div class="form-group">
+<label>Nama</label>
+<input id="nama">
+</div>
+
+<div class="form-group">
+<label>Kelas</label>
+<input id="kelas">
+</div>
+
+<div class="form-group">
+<label>Wali Kelas</label>
+<input id="wali_kelas">
+</div>
+
+<div class="form-group">
+<label>Orang Tua</label>
+<input id="orang_tua">
+</div>
+
+<button onclick="simpan()">Simpan</button>
+
+</div>
+
+<script>
+
+async function simpan(){
+
+ const data={
+  nis:nis.value,
+  password:password.value,
+  nama:nama.value,
+  kelas:kelas.value,
+  wali_kelas:wali_kelas.value,
+  orang_tua:orang_tua.value
+ }
+
+ const r = await fetch("http://127.0.0.1:5000/tambah-siswa",{
+
+ method:"POST",
+ headers:{"Content-Type":"application/json"},
+ body:JSON.stringify(data)
+
+ })
+
+ const d = await r.json()
+
+ alert(d.msg)
+
+ // reset form biar bersih
+ nis.value=""
+ password.value=""
+ nama.value=""
+ kelas.value=""
+ wali_kelas.value=""
+ orang_tua.value=""
+
+}
+
+</script>
+
+</body>
+</html>

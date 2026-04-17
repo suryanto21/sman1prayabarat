@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Kelola Data</title>
+
+<style>
+
+body{
+ font-family:Arial;
+ background:#1e2235;
+ color:white;
+ padding:30px;
+}
+
+/* TABLE */
+table{
+ width:100%;
+ border-collapse:collapse;
+ background:#2b3048;
+ margin-bottom:30px;
+}
+
+th,td{
+ padding:10px;
+ border-bottom:1px solid #444;
+}
+
+th{
+ background:#3498db;
+}
+
+/* BUTTON */
+button{
+ padding:5px 10px;
+ margin:2px;
+ border:none;
+ border-radius:5px;
+ cursor:pointer;
+}
+
+.hapus{background:#e74c3c;color:white;}
+.edit{background:#f1c40f;}
+.simpan{background:#27ae60;color:white;}
+
+/* MODAL */
+.modal{
+ display:none;
+ position:fixed;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
+ background:rgba(0,0,0,0.7);
+ justify-content:center;
+ align-items:center;
+}
+
+.modal-box{
+ background:#2b3048;
+ padding:20px;
+ border-radius:10px;
+}
+
+input{
+ padding:8px;
+ margin:5px;
+ border:none;
+ border-radius:5px;
+ width:200px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h2>DATA SISWA</h2>
+
+<table>
+<thead>
+<tr>
+<th>NIS</th>
+<th>Nama</th>
+<th>Kelas</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="siswa"></tbody>
+</table>
+
+<h2>DATA GURU</h2>
+
+<table>
+<thead>
+<tr>
+<th>NIP</th>
+<th>Nama</th>
+<th>Mapel</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="guru"></tbody>
+</table>
+
+<!-- MODAL SISWA -->
+<div class="modal" id="modal">
+<div class="modal-box">
+
+<h3>Edit Siswa</h3>
+
+<input id="e_nis"><br>
+<input id="e_nama"><br>
+<input id="e_kelas"><br>
+<input id="e_wali"><br>
+<input id="e_ortu"><br>
+
+<button class="simpan" onclick="simpanEdit()">Simpan</button>
+<button onclick="tutup()">Batal</button>
+
+</div>
+</div>
+
+<!-- MODAL GURU -->
+<div class="modal" id="modalGuru">
+<div class="modal-box">
+
+<h3>Edit Guru</h3>
+
+<input id="g_nip"><br>
+<input id="g_nama"><br>
+<input id="g_mapel"><br>
+<input id="g_alamat"><br>
+
+<button class="simpan" onclick="simpanEditGuru()">Simpan</button>
+<button onclick="tutupGuru()">Batal</button>
+
+</div>
+</div>
+
+<script>
+
+let dataSiswa = []
+let dataGuru = []
+let nisEdit = ""
+let nipEdit = ""
+
+// ================= LOAD =================
+
+async function load(){
+
+ let r1 = await fetch("http://127.0.0.1:5000/get-siswa")
+ dataSiswa = await r1.json()
+
+ let r2 = await fetch("http://127.0.0.1:5000/get-guru")
+ dataGuru = await r2.json()
+
+ renderSiswa()
+ renderGuru()
+}
+
+// ================= RENDER SISWA =================
+
+function renderSiswa(){
+
+ let html=""
+
+ dataSiswa.forEach(d=>{
+  html+=`
+  <tr>
+   <td>${d.nis}</td>
+   <td>${d.nama}</td>
+   <td>${d.kelas}</td>
+   <td>
+    <button class="edit" onclick="bukaEdit('${d.nis}')">Edit</button>
+    <button class="hapus" onclick="hapusSiswa('${d.nis}')">Hapus</button>
+   </td>
+  </tr>`
+ })
+
+ document.getElementById("siswa").innerHTML = html
+}
+
+// ================= RENDER GURU =================
+
+function renderGuru(){
+
+ let html=""
+
+ dataGuru.forEach(d=>{
+  html+=`
+  <tr>
+   <td>${d.nip}</td>
+   <td>${d.nama}</td>
+   <td>${d.mapel}</td>
+   <td>
+    <button class="edit" onclick="bukaEditGuru('${d.nip}')">Edit</button>
+    <button class="hapus" onclick="hapusGuru('${d.nip}')">Hapus</button>
+   </td>
+  </tr>`
+ })
+
+ document.getElementById("guru").innerHTML = html
+}
+
+// ================= EDIT SISWA =================
+
+function bukaEdit(nis){
+
+ let d = dataSiswa.find(x => x.nis == nis)
+
+ nisEdit = nis
+
+ e_nis.value = d.nis
+ e_nama.value = d.nama
+ e_kelas.value = d.kelas
+ e_wali.value = d.wali_kelas
+ e_ortu.value = d.orang_tua
+
+ document.getElementById("modal").style.display = "flex"
+}
+
+async function simpanEdit(){
+
+ const data = {
+  nis: e_nis.value,
+  nama: e_nama.value,
+  kelas: e_kelas.value,
+  wali_kelas: e_wali.value,
+  orang_tua: e_ortu.value
+ }
+
+ await fetch("http://127.0.0.1:5000/update-siswa/"+nisEdit,{
+  method:"PUT",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify(data)
+ })
+
+ alert("Siswa diupdate")
+
+ tutup()
+ load()
+}
+
+function tutup(){
+ document.getElementById("modal").style.display = "none"
+}
+
+// ================= EDIT GURU =================
+
+function bukaEditGuru(nip){
+
+ let d = dataGuru.find(x => x.nip == nip)
+
+ nipEdit = nip
+
+ g_nip.value = d.nip
+ g_nama.value = d.nama
+ g_mapel.value = d.mapel
+ g_alamat.value = d.alamat
+
+ document.getElementById("modalGuru").style.display = "flex"
+}
+
+async function simpanEditGuru(){
+
+ const data = {
+  nip: g_nip.value,
+  nama: g_nama.value,
+  mapel: g_mapel.value,
+  alamat: g_alamat.value
+ }
+
+ await fetch("http://127.0.0.1:5000/update-guru/"+nipEdit,{
+  method:"PUT",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify(data)
+ })
+
+ alert("Guru diupdate")
+
+ tutupGuru()
+ load()
+}
+
+function tutupGuru(){
+ document.getElementById("modalGuru").style.display = "none"
+}
+
+// ================= DELETE =================
+
+async function hapusSiswa(nis){
+
+ if(!confirm("Yakin hapus?")) return
+
+ await fetch("http://127.0.0.1:5000/hapus-siswa/"+nis,{
+  method:"DELETE"
+ })
+
+ alert("Siswa dihapus")
+ load()
+}
+
+async function hapusGuru(nip){
+
+ if(!confirm("Yakin hapus?")) return
+
+ await fetch("http://127.0.0.1:5000/hapus-guru/"+nip,{
+  method:"DELETE"
+ })
+
+ alert("Guru dihapus")
+ load()
+}
+
+// ================= INIT =================
+load()
+
+</script>
+
+</body>
+</html>
