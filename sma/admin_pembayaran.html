@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Admin Pembayaran</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ display:flex;
+ justify-content:center;
+ align-items:center;
+ height:100vh;
+ color:white;
+}
+
+.container{
+ background:#2b3048;
+ padding:30px;
+ border-radius:15px;
+ width:400px;
+ box-shadow:0 15px 30px rgba(0,0,0,0.4);
+}
+
+h2{
+ text-align:center;
+}
+
+input{
+ width:100%;
+ padding:12px;
+ margin-bottom:10px;
+ border-radius:8px;
+ border:none;
+}
+
+button{
+ width:100%;
+ padding:12px;
+ background:#27ae60;
+ border:none;
+ border-radius:8px;
+ color:white;
+ cursor:pointer;
+}
+
+button:hover{
+ background:#219150;
+}
+
+.list{
+ margin-top:20px;
+}
+
+.item{
+ background:#3a4060;
+ padding:10px;
+ border-radius:10px;
+ margin-bottom:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Input Tagihan Siswa</h2>
+
+<input id="nis" placeholder="NIS">
+<input id="nama" placeholder="Nama Siswa">
+<input id="jumlah" placeholder="Jumlah Bayar">
+<input id="ket" placeholder="Keterangan (SPP, dll)">
+
+<button onclick="simpan()">Simpan Tagihan</button>
+
+<div class="list" id="list"></div>
+
+</div>
+
+<script>
+
+// ================= SIMPAN TAGIHAN =================
+async function simpan(){
+
+ const data={
+  nis:nis.value,
+  nama:nama.value,
+  jumlah:parseInt(jumlah.value),
+  keterangan:ket.value
+ }
+
+ const r=await fetch("http://127.0.0.1:5000/tambah-tagihan",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify(data)
+ })
+
+ const d=await r.json()
+
+ alert(d.msg)
+
+ nis.value=""
+ nama.value=""
+ jumlah.value=""
+ ket.value=""
+
+ load()
+}
+
+// ================= LOAD TAGIHAN =================
+async function load(){
+
+ const r=await fetch("http://127.0.0.1:5000/get-tagihan")
+ const data=await r.json()
+
+ let html=""
+
+ data.forEach(d=>{
+  html+=`
+   <div class="item">
+    <b>${d.nama}</b><br>
+    NIS: ${d.nis}<br>
+    Jumlah: Rp ${d.jumlah}<br>
+    ${d.keterangan}
+   </div>
+  `
+ })
+
+ document.getElementById("list").innerHTML=html
+}
+
+// auto load
+load()
+
+</script>
+
+</body>
+</html>

@@ -1,81 +1,47 @@
 <!DOCTYPE html>
 <html>
 <head>
-
-<title>Presensi Siswa</title>
+<title>Presensi Guru</title>
 
 <style>
 body{
- margin:0;
  font-family:Arial;
  background:#1e2235;
- display:flex;
- justify-content:center;
- align-items:center;
- height:100vh;
  color:white;
 }
 
-.form-card{
+.container{
+ max-width:500px;
+ margin:auto;
+ padding:20px;
+}
+
+input{
+ width:100%;
+ padding:10px;
+ margin-bottom:10px;
+ border-radius:8px;
+ border:none;
+}
+
+.card{
  background:#2b3048;
- padding:30px;
- border-radius:15px;
- width:380px;
- box-shadow:0 15px 30px rgba(0,0,0,0.4);
-}
-
-.form-card h2{
- text-align:center;
-}
-
-.form-group{
- margin-bottom:15px;
-}
-
-.form-group input,
-.form-group select{
- width:100%;
- padding:12px;
- border-radius:8px;
- border:none;
-}
-
-button{
- width:100%;
- padding:12px;
- background:#27ae60;
- border:none;
- border-radius:8px;
- color:white;
+ padding:15px;
+ border-radius:10px;
+ margin-bottom:10px;
 }
 </style>
-
 </head>
 
 <body>
 
-<div class="form-card">
+<div class="container">
 
-<h2>Presensi Siswa</h2>
+<h2>Presensi Guru</h2>
 
-<div class="form-group">
-<label>NIS</label>
-<input id="nis">
-</div>
+<input type="text" id="searchGuru" placeholder="Cari guru..." onkeyup="filterGuru()">
 
-<div class="form-group">
-<label>Nama</label>
-<input id="nama">
-</div>
-
-<div class="form-group">
-<label>Status</label>
-<select id="status">
-<option>Hadir</option>
-<option>Izin</option>
-<option>Alpha</option>
-</select>
-</div>
+<div id="listGuru"></div>
 
 <button onclick="simpan()">Simpan</button>
 
@@ -83,31 +49,59 @@ button{
 
 <script>
 
-async function simpan(){
+let dataGuru=[]
 
- const data={
-  nis:nis.value,
-  nama:nama.value,
-  status:status.value
- }
+async function loadGuru(){
+ let r=await fetch("/get-guru")
+ dataGuru=await r.json()
 
- const r=await fetch("http://127.0.0.1:5000/presensi",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify(data)
+ let html=""
+ dataGuru.forEach((g,i)=>{
+  html+=`
+  <div class="card">
+   <b>${g.nama}</b>
+   <select id="s${i}">
+    <option>Hadir</option>
+    <option>Izin</option>
+    <option>Sakit</option>
+    <option>Alfa</option>
+   </select>
+  </div>`
  })
 
- const d=await r.json()
-
- alert(d.msg)
-
- nis.value=""
- nama.value=""
- status.value="Hadir"
-
+ listGuru.innerHTML=html
 }
 
-</script>
+function filterGuru(){
+ let key=searchGuru.value.toLowerCase().trim()
+ document.querySelectorAll(".card").forEach(c=>{
+  c.style.display = c.innerText.toLowerCase().includes(key) ? "block":"none"
+ })
+}
 
+async function simpan(){
+
+ let data=[]
+
+ dataGuru.forEach((g,i)=>{
+  data.push({
+   nip:g.nip,
+   nama:g.nama,
+   status:document.getElementById("s"+i).value
+  })
+ })
+
+ await fetch("/presensi-guru",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({tanggal:new Date(),data})
+ })
+
+ alert("Tersimpan")
+}
+
+loadGuru()
+
+</script>
 </body>
 </html>

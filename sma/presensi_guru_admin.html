@@ -2,44 +2,51 @@
 <html>
 <head>
 
-<title>Presensi Guru</title>
+<title>Presensi Guru (Admin)</title>
 
 <style>
 body{
  margin:0;
  font-family:Arial;
  background:#1e2235;
- display:flex;
- justify-content:center;
- align-items:center;
- height:100vh;
  color:white;
 }
 
-.form-card{
- background:#2b3048;
- padding:30px;
- border-radius:15px;
- width:380px;
- box-shadow:0 15px 30px rgba(0,0,0,0.4);
+/* CONTAINER */
+.container{
+ max-width:600px;
+ margin:auto;
+ padding:20px;
 }
 
-.form-card h2{
- text-align:center;
-}
-
-.form-group{
+/* SEARCH */
+input{
+ width:100%;
+ padding:10px;
+ border-radius:8px;
+ border:none;
  margin-bottom:15px;
 }
 
-.form-group input,
-.form-group select{
- width:100%;
- padding:12px;
- border-radius:8px;
- border:none;
+/* CARD */
+.card{
+ background:#2b3048;
+ padding:15px;
+ border-radius:10px;
+ margin-bottom:10px;
+ box-shadow:0 5px 15px rgba(0,0,0,0.3);
 }
 
+/* SELECT */
+select{
+ width:100%;
+ padding:10px;
+ border-radius:8px;
+ border:none;
+ margin-top:10px;
+}
+
+/* BUTTON */
 button{
  width:100%;
  padding:12px;
@@ -47,6 +54,12 @@ button{
  border:none;
  border-radius:8px;
  color:white;
+ margin-top:15px;
+ cursor:pointer;
+}
+
+button:hover{
+ background:#219150;
 }
 </style>
 
@@ -54,58 +67,99 @@ button{
 
 <body>
 
-<div class="form-card">
+<div class="container">
 
-<h2>Presensi Guru</h2>
+<h2>Presensi Guru (Admin)</h2>
 
-<div class="form-group">
-<label>NIP</label>
-<input id="nip">
-</div>
+<!-- 🔍 SEARCH -->
+<input type="text" id="searchGuru" placeholder="Cari guru..." onkeyup="filterGuru()">
 
-<div class="form-group">
-<label>Nama Guru</label>
-<input id="nama">
-</div>
+<!-- 📋 LIST -->
+<div id="listGuru"></div>
 
-<div class="form-group">
-<label>Status</label>
-<select id="status">
-<option>Hadir</option>
-<option>Izin</option>
-<option>Sakit</option>
-<option>Alpha</option>
-</select>
-</div>
-
-<button onclick="simpan()">Simpan</button>
+<button onclick="simpan()">Simpan Presensi</button>
 
 </div>
 
 <script>
 
-async function simpan(){
+let dataGuru = []
 
- const data={
-  nip:nip.value,
-  nama:nama.value,
-  status:status.value
- }
+// ================= LOAD DATA GURU =================
+async function loadGuru(){
 
- const r=await fetch("http://127.0.0.1:5000/presensi-guru",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify(data)
+ const r = await fetch("http://127.0.0.1:5000/get-guru")
+ dataGuru = await r.json()
+
+ let html = ""
+
+ dataGuru.forEach((g, i)=>{
+  html += `
+  <div class="card">
+    <b>${g.nama}</b><br>
+    <small>${g.mapel}</small>
+
+    <select id="status${i}">
+      <option>Hadir</option>
+      <option>Izin</option>
+      <option>Sakit</option>
+      <option>Alfa</option>
+    </select>
+  </div>
+  `
  })
 
- const d=await r.json()
+ document.getElementById("listGuru").innerHTML = html
+}
 
- alert(d.msg)
+loadGuru()
 
- nip.value=""
- nama.value=""
- status.value="Hadir"
+// ================= SEARCH (CASE INSENSITIVE) =================
+function filterGuru(){
 
+ let keyword = document
+  .getElementById("searchGuru")
+  .value
+  .toLowerCase()
+  .trim()
+
+ let cards = document.querySelectorAll(".card")
+
+ cards.forEach(c=>{
+  let text = c.innerText.toLowerCase()
+  c.style.display = text.includes(keyword) ? "block" : "none"
+ })
+
+}
+
+// ================= SIMPAN PRESENSI =================
+async function simpan(){
+
+ let hasil = []
+
+ dataGuru.forEach((g, i)=>{
+  hasil.push({
+    nip: g.nip,
+    nama: g.nama,
+    mapel: g.mapel,
+    status: document.getElementById("status"+i).value
+  })
+ })
+
+ const data = {
+  tanggal: new Date().toISOString().split("T")[0],
+  data: hasil
+ }
+
+ const r = await fetch("http://127.0.0.1:5000/presensi-guru",{
+  method:"POST",
+  headers:{"Content-Type":"application/json"},
+  body: JSON.stringify(data)
+ })
+
+ const res = await r.json()
+
+ alert(res.msg || "Presensi tersimpan")
 }
 
 </script>

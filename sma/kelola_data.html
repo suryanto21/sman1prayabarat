@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-
 <title>Kelola Data</title>
 
 <style>
-
 body{
  font-family:Arial;
  background:#1e2235;
@@ -13,7 +11,14 @@ body{
  padding:30px;
 }
 
-/* TABLE */
+input{
+ padding:10px;
+ margin:5px 0;
+ border-radius:8px;
+ border:none;
+ width:100%;
+}
+
 table{
  width:100%;
  border-collapse:collapse;
@@ -26,11 +31,8 @@ th,td{
  border-bottom:1px solid #444;
 }
 
-th{
- background:#3498db;
-}
+th{background:#3498db;}
 
-/* BUTTON */
 button{
  padding:5px 10px;
  margin:2px;
@@ -43,14 +45,11 @@ button{
 .edit{background:#f1c40f;}
 .simpan{background:#27ae60;color:white;}
 
-/* MODAL */
 .modal{
  display:none;
  position:fixed;
- top:0;
- left:0;
- width:100%;
- height:100%;
+ top:0;left:0;
+ width:100%;height:100%;
  background:rgba(0,0,0,0.7);
  justify-content:center;
  align-items:center;
@@ -60,16 +59,8 @@ button{
  background:#2b3048;
  padding:20px;
  border-radius:10px;
+ width:300px;
 }
-
-input{
- padding:8px;
- margin:5px;
- border:none;
- border-radius:5px;
- width:200px;
-}
-
 </style>
 
 </head>
@@ -78,12 +69,15 @@ input{
 
 <h2>DATA SISWA</h2>
 
+<input type="text" id="searchSiswa" placeholder="Cari siswa..." onkeyup="cariSiswa()">
+
 <table>
 <thead>
 <tr>
 <th>NIS</th>
 <th>Nama</th>
 <th>Kelas</th>
+<th>Wali Kelas</th>
 <th>Aksi</th>
 </tr>
 </thead>
@@ -91,6 +85,8 @@ input{
 </table>
 
 <h2>DATA GURU</h2>
+
+<input type="text" id="searchGuru" placeholder="Cari guru..." onkeyup="cariGuru()">
 
 <table>
 <thead>
@@ -104,36 +100,32 @@ input{
 <tbody id="guru"></tbody>
 </table>
 
-<!-- MODAL SISWA -->
-<div class="modal" id="modal">
+<!-- MODAL SISWA (EDIT ONLY) -->
+<div class="modal" id="modalSiswa">
 <div class="modal-box">
-
 <h3>Edit Siswa</h3>
 
-<input id="e_nis"><br>
-<input id="e_nama"><br>
-<input id="e_kelas"><br>
-<input id="e_wali"><br>
-<input id="e_ortu"><br>
+<input id="s_nis" placeholder="NIS">
+<input id="s_nama" placeholder="Nama">
+<input id="s_kelas" placeholder="Kelas">
+<input id="s_wali" placeholder="Wali Kelas">
 
-<button class="simpan" onclick="simpanEdit()">Simpan</button>
-<button onclick="tutup()">Batal</button>
+<button class="simpan" onclick="simpanSiswa()">Simpan</button>
+<button onclick="tutupSiswa()">Batal</button>
 
 </div>
 </div>
 
-<!-- MODAL GURU -->
+<!-- MODAL GURU (EDIT ONLY) -->
 <div class="modal" id="modalGuru">
 <div class="modal-box">
-
 <h3>Edit Guru</h3>
 
-<input id="g_nip"><br>
-<input id="g_nama"><br>
-<input id="g_mapel"><br>
-<input id="g_alamat"><br>
+<input id="g_nip" placeholder="NIP">
+<input id="g_nama" placeholder="Nama">
+<input id="g_mapel" placeholder="Mapel">
 
-<button class="simpan" onclick="simpanEditGuru()">Simpan</button>
+<button class="simpan" onclick="simpanGuru()">Simpan</button>
 <button onclick="tutupGuru()">Batal</button>
 
 </div>
@@ -141,53 +133,42 @@ input{
 
 <script>
 
-let dataSiswa = []
-let dataGuru = []
-let nisEdit = ""
-let nipEdit = ""
+let dataSiswa=[], dataGuru=[]
+let editNis="", editNip=""
 
 // ================= LOAD =================
-
 async function load(){
+ let r1=await fetch("/get-siswa")
+ dataSiswa=await r1.json()
 
- let r1 = await fetch("http://127.0.0.1:5000/get-siswa")
- dataSiswa = await r1.json()
-
- let r2 = await fetch("http://127.0.0.1:5000/get-guru")
- dataGuru = await r2.json()
+ let r2=await fetch("/get-guru")
+ dataGuru=await r2.json()
 
  renderSiswa()
  renderGuru()
 }
 
-// ================= RENDER SISWA =================
-
+// ================= RENDER =================
 function renderSiswa(){
-
  let html=""
-
  dataSiswa.forEach(d=>{
   html+=`
   <tr>
    <td>${d.nis}</td>
    <td>${d.nama}</td>
    <td>${d.kelas}</td>
+   <td>${d.wali_kelas || d.wali || '-'}</td>
    <td>
-    <button class="edit" onclick="bukaEdit('${d.nis}')">Edit</button>
+    <button class="edit" onclick="editSiswa('${d.nis}')">Edit</button>
     <button class="hapus" onclick="hapusSiswa('${d.nis}')">Hapus</button>
    </td>
   </tr>`
  })
-
- document.getElementById("siswa").innerHTML = html
+ siswa.innerHTML=html
 }
 
-// ================= RENDER GURU =================
-
 function renderGuru(){
-
  let html=""
-
  dataGuru.forEach(d=>{
   html+=`
   <tr>
@@ -195,124 +176,103 @@ function renderGuru(){
    <td>${d.nama}</td>
    <td>${d.mapel}</td>
    <td>
-    <button class="edit" onclick="bukaEditGuru('${d.nip}')">Edit</button>
+    <button class="edit" onclick="editGuru('${d.nip}')">Edit</button>
     <button class="hapus" onclick="hapusGuru('${d.nip}')">Hapus</button>
    </td>
   </tr>`
  })
-
- document.getElementById("guru").innerHTML = html
+ guru.innerHTML=html
 }
 
-// ================= EDIT SISWA =================
-
-function bukaEdit(nis){
-
- let d = dataSiswa.find(x => x.nis == nis)
-
- nisEdit = nis
-
- e_nis.value = d.nis
- e_nama.value = d.nama
- e_kelas.value = d.kelas
- e_wali.value = d.wali_kelas
- e_ortu.value = d.orang_tua
-
- document.getElementById("modal").style.display = "flex"
+// ================= SEARCH =================
+function cariSiswa(){
+ let key=searchSiswa.value.toLowerCase()
+ document.querySelectorAll("#siswa tr").forEach(r=>{
+  r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none"
+ })
 }
 
-async function simpanEdit(){
+function cariGuru(){
+ let key=searchGuru.value.toLowerCase()
+ document.querySelectorAll("#guru tr").forEach(r=>{
+  r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none"
+ })
+}
 
- const data = {
-  nis: e_nis.value,
-  nama: e_nama.value,
-  kelas: e_kelas.value,
-  wali_kelas: e_wali.value,
-  orang_tua: e_ortu.value
- }
+// ================= EDIT =================
+function editSiswa(nis){
+ let d=dataSiswa.find(x=>x.nis==nis)
 
- await fetch("http://127.0.0.1:5000/update-siswa/"+nisEdit,{
+ editNis=nis
+
+ s_nis.value=d.nis
+ s_nama.value=d.nama
+ s_kelas.value=d.kelas
+ s_wali.value = d.wali_kelas || d.wali || ""
+
+ modalSiswa.style.display="flex"
+}
+
+function editGuru(nip){
+ let d=dataGuru.find(x=>x.nip==nip)
+
+ editNip=nip
+
+ g_nip.value=d.nip
+ g_nama.value=d.nama
+ g_mapel.value=d.mapel
+
+ modalGuru.style.display="flex"
+}
+
+// ================= SIMPAN =================
+async function simpanSiswa(){
+ await fetch("/update-siswa/"+editNis,{
   method:"PUT",
   headers:{"Content-Type":"application/json"},
-  body:JSON.stringify(data)
+  body:JSON.stringify({
+   nis:s_nis.value,
+   nama:s_nama.value,
+   kelas:s_kelas.value,
+   wali_kelas:s_wali.value
+  })
  })
 
- alert("Siswa diupdate")
-
- tutup()
+ tutupSiswa()
  load()
 }
 
-function tutup(){
- document.getElementById("modal").style.display = "none"
-}
-
-// ================= EDIT GURU =================
-
-function bukaEditGuru(nip){
-
- let d = dataGuru.find(x => x.nip == nip)
-
- nipEdit = nip
-
- g_nip.value = d.nip
- g_nama.value = d.nama
- g_mapel.value = d.mapel
- g_alamat.value = d.alamat
-
- document.getElementById("modalGuru").style.display = "flex"
-}
-
-async function simpanEditGuru(){
-
- const data = {
-  nip: g_nip.value,
-  nama: g_nama.value,
-  mapel: g_mapel.value,
-  alamat: g_alamat.value
- }
-
- await fetch("http://127.0.0.1:5000/update-guru/"+nipEdit,{
+async function simpanGuru(){
+ await fetch("/update-guru/"+editNip,{
   method:"PUT",
   headers:{"Content-Type":"application/json"},
-  body:JSON.stringify(data)
+  body:JSON.stringify({
+   nip:g_nip.value,
+   nama:g_nama.value,
+   mapel:g_mapel.value
+  })
  })
-
- alert("Guru diupdate")
 
  tutupGuru()
  load()
 }
 
-function tutupGuru(){
- document.getElementById("modalGuru").style.display = "none"
-}
-
 // ================= DELETE =================
-
 async function hapusSiswa(nis){
-
  if(!confirm("Yakin hapus?")) return
-
- await fetch("http://127.0.0.1:5000/hapus-siswa/"+nis,{
-  method:"DELETE"
- })
-
- alert("Siswa dihapus")
+ await fetch("/hapus-siswa/"+nis,{method:"DELETE"})
  load()
 }
 
 async function hapusGuru(nip){
-
  if(!confirm("Yakin hapus?")) return
-
- await fetch("http://127.0.0.1:5000/hapus-guru/"+nip,{
-  method:"DELETE"
- })
-
- alert("Guru dihapus")
+ await fetch("/hapus-guru/"+nip,{method:"DELETE"})
  load()
 }
+
+// ================= CLOSE =================
+function tutupSiswa(){modalSiswa.style.display="none"}
+function tutupGuru(){modalGuru.style.display="none"}
 
 // ================= INIT =================
 load()

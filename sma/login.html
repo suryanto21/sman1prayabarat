@@ -3,6 +3,7 @@
 <head>
 
 <title>Login SIAKAD</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="/css/style.css">
 
 <style>
@@ -113,7 +114,9 @@ async function login(){
   return
  }
 
- localStorage.setItem("username", user.value)
+localStorage.setItem("username", user.value)
+localStorage.setItem("role", d.role)
+localStorage.setItem("nama", d.nama) // 🔥 INI PENTING
 
  if(d.role=="admin") location="/sma/admin.html"
  if(d.role=="guru") location="/sma/guru.html"

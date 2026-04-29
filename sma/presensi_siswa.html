@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Presensi Saya</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="stylesheet" href="/css/style.css">
+
+<style>
+body{
+ margin:0;
+ font-family:Arial;
+ background:#1e2235;
+ color:white;
+}
+
+.container{
+ padding:20px;
+}
+
+h2{
+ text-align:center;
+}
+
+.card{
+ background:#2b3048;
+ padding:15px;
+ border-radius:10px;
+ margin-bottom:10px;
+}
+
+.hadir{ color:lightgreen }
+.izin{ color:orange }
+.sakit{ color:yellow }
+.alfa{ color:red }
+</style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Presensi Saya</h2>
+
+<div id="list"></div>
+
+</div>
+
+<script>
+
+// ambil nama dari login
+const nama = localStorage.getItem("nama")
+
+fetch("http://127.0.0.1:5000/presensi-siswa/" + nama)
+.then(res => res.json())
+.then(data => {
+
+    let html = ""
+
+    if(data.length == 0){
+        html = "<p>Tidak ada data presensi</p>"
+    }
+
+    data.forEach(d => {
+
+        let warna = d.status.toLowerCase()
+
+        html += `
+        <div class="card">
+            <b>Tanggal:</b> ${d.tanggal} <br>
+            <b>Kelas:</b> ${d.kelas} <br>
+            <b>Status:</b> <span class="${warna}">${d.status}</span>
+        </div>
+        `
+    })
+
+    document.getElementById("list").innerHTML = html
+})
+
+</script>
+
+</body>
+</html>

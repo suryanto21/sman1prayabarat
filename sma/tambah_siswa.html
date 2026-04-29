@@ -87,14 +87,15 @@ button:hover{
 </div>
 
 <div class="form-group">
+<label>Nama</label>
+<input id="nama">
+</div>
+
+<div class="form-group">
 <label>Password</label>
 <input type="password" id="password">
 </div>
 
-<div class="form-group">
-<label>Nama</label>
-<input id="nama">
-</div>
 
 <div class="form-group">
 <label>Kelas</label>
@@ -103,7 +104,7 @@ button:hover{
 
 <div class="form-group">
 <label>Wali Kelas</label>
-<input id="wali_kelas">
+<input id="wali">
 </div>
 
 <div class="form-group">
@@ -124,7 +125,7 @@ async function simpan(){
   password:password.value,
   nama:nama.value,
   kelas:kelas.value,
-  wali_kelas:wali_kelas.value,
+  wali_kelas:wali.value,
   orang_tua:orang_tua.value
  }
 

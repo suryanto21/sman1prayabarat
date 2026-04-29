@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Kelola Data User</title>
+
+<style>
+body{
+ font-family:Arial;
+ background:#1e2235;
+ color:white;
+ padding:20px;
+}
+
+h1{margin-bottom:20px;}
+
+input{
+ padding:10px;
+ margin-bottom:10px;
+ border:none;
+ border-radius:5px;
+ width:100%;
+}
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ background:#2b3048;
+}
+
+th,td{
+ padding:10px;
+ border-bottom:1px solid #444;
+}
+
+th{background:#3498db;}
+
+button{
+ padding:5px 10px;
+ margin:2px;
+ border:none;
+ border-radius:5px;
+ cursor:pointer;
+}
+
+.edit{background:#f1c40f;}
+.hapus{background:#e74c3c;color:white;}
+.simpan{background:#27ae60;color:white;}
+
+.modal{
+ display:none;
+ position:fixed;
+ top:0;left:0;
+ width:100%;height:100%;
+ background:rgba(0,0,0,0.7);
+ justify-content:center;
+ align-items:center;
+}
+
+.modal-box{
+ background:#2b3048;
+ padding:20px;
+ border-radius:10px;
+ width:300px;
+}
+</style>
+
+</head>
+
+<body>
+
+<h1>DATA USER</h1>
+
+<input type="text" id="search" placeholder="Cari user..." onkeyup="cari()">
+
+<table>
+<thead>
+<tr>
+<th>Username</th>
+<th>Password</th>
+<th>Role</th>
+<th>Aksi</th>
+</tr>
+</thead>
+<tbody id="users"></tbody>
+</table>
+
+<!-- MODAL EDIT -->
+<div class="modal" id="modalUser">
+<div class="modal-box">
+
+<h3>Edit User</h3>
+
+<input id="u_user" placeholder="Username">
+<input id="u_pass" placeholder="Password">
+<input id="u_role" placeholder="Role">
+
+<button class="simpan" onclick="simpanUser()">Simpan</button>
+<button onclick="tutupUser()">Batal</button>
+
+</div>
+</div>
+
+<script>
+
+let dataUser = []
+let editUser = ""
+
+// ================= LOAD =================
+async function load(){
+ let r = await fetch("/get-all-data")
+ let d = await r.json()
+
+ dataUser = d.users
+ render()
+}
+
+// ================= RENDER =================
+function render(){
+ let html=""
+
+ dataUser.forEach(u=>{
+  html+=`
+  <tr>
+    <td>${u.username}</td>
+    <td>${u.password}</td>
+    <td>${u.role}</td>
+    <td>
+      <button class="edit" onclick="editUserFn('${u.username}')">Edit</button>
+      <button class="hapus" onclick="hapusUser('${u.username}')">Hapus</button>
+    </td>
+  </tr>`
+ })
+
+ users.innerHTML = html
+}
+
+// ================= SEARCH =================
+function cari(){
+ let key = search.value.toLowerCase().trim()
+
+ document.querySelectorAll("#users tr").forEach(r=>{
+  r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none"
+ })
+}
+
+// ================= EDIT =================
+function editUserFn(username){
+ let d = dataUser.find(x=>x.username == username)
+
+ editUser = username
+
+ u_user.value = d.username
+ u_pass.value = d.password
+ u_role.value = d.role
+
+ modalUser.style.display = "flex"
+}
+
+// ================= SIMPAN =================
+async function simpanUser(){
+
+ await fetch("/update-user/" + editUser,{
+  method:"PUT",
+  headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({
+    username: u_user.value,
+    password: u_pass.value,
+    role: u_role.value
+  })
+ })
+
+ alert("User berhasil diupdate")
+
+ tutupUser()
+ load()
+}
+
+// ================= DELETE =================
+async function hapusUser(username){
+
+ if(!confirm("Yakin hapus user?")) return
+
+ await fetch("/hapus-user/" + username,{
+  method:"DELETE"
+ })
+
+ alert("User dihapus")
+ load()
+}
+
+// ================= CLOSE =================
+function tutupUser(){
+ modalUser.style.display="none"
+}
+
+// ================= INIT =================
+load()
+
+</script>
+
+</body>
+</html>

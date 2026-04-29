@@ -21,23 +21,14 @@ body{
  padding:30px;
  border-radius:15px;
  width:380px;
- box-shadow:0 15px 30px rgba(0,0,0,0.4);
 }
 
-.form-card h2{
- text-align:center;
- margin-bottom:20px;
-}
-
-.form-group{
- margin-bottom:15px;
-}
-
-.form-group input{
+input{
  width:100%;
  padding:12px;
  border-radius:8px;
  border:none;
+ margin-bottom:10px;
 }
 
 button{
@@ -49,10 +40,6 @@ button{
  color:white;
  cursor:pointer;
 }
-
-button:hover{
- background:#219150;
-}
 </style>
 
 </head>
@@ -63,20 +50,14 @@ button:hover{
 
 <h2>Pembayaran</h2>
 
-<div class="form-group">
 <label>NIS</label>
-<input id="nis">
-</div>
+<input id="nis" readonly>
 
-<div class="form-group">
 <label>Nama</label>
-<input id="nama">
-</div>
+<input id="nama" readonly>
 
-<div class="form-group">
 <label>Jumlah Bayar</label>
-<input id="jumlah">
-</div>
+<input id="jumlah" readonly>
 
 <button onclick="bayar()">Bayar</button>
 
@@ -84,12 +65,34 @@ button:hover{
 
 <script>
 
+// ================= LOAD DATA SISWA =================
+const nisUser = localStorage.getItem("username")
+
+// set NIS
+document.getElementById("nis").value = nisUser
+
+// ambil tagihan dari backend
+fetch("http://127.0.0.1:5000/get-tagihan/" + nisUser)
+.then(res => res.json())
+.then(data => {
+
+    if(!data.nis){
+        alert("Tidak ada tagihan")
+        return
+    }
+
+    document.getElementById("nama").value = data.nama
+    document.getElementById("jumlah").value = data.jumlah
+})
+
+// ================= BAYAR =================
 async function bayar(){
 
  const data={
   nis:nis.value,
   nama:nama.value,
-  jumlah:jumlah.value
+  jumlah:jumlah.value,
+  tanggal: new Date().toISOString()
  }
 
  const r=await fetch("http://127.0.0.1:5000/pembayaran",{
@@ -101,11 +104,6 @@ async function bayar(){
  const d=await r.json()
 
  alert(d.msg)
-
- nis.value=""
- nama.value=""
- jumlah.value=""
-
 }
 
 </script>
