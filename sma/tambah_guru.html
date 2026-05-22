@@ -82,8 +82,8 @@ button:hover{
 <h2>Tambah Guru</h2>
 
 <div class="form-group">
-<label>NIP</label>
-<input id="nip">
+<label>Username</label>
+<input id="username">
 </div>
 
 <div class="form-group">
@@ -116,7 +116,7 @@ button:hover{
 async function simpan(){
 
  const data = {
-  nip: nip.value,
+  username: username.value,
   password: password.value,
   nama: nama.value,
   mapel: mapel.value,
@@ -134,7 +134,7 @@ async function simpan(){
  alert(res.msg)
 
  // reset form
- nip.value=""
+ username.value=""
  password.value=""
  nama.value=""
  mapel.value=""

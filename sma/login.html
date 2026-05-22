@@ -3,10 +3,13 @@
 <head>
 
 <title>Login SIAKAD</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="/css/style.css">
 
 <style>
+
 body{
  display:flex;
  justify-content:center;
@@ -14,13 +17,15 @@ body{
  height:100vh;
  background:#1e2235;
  font-family:Arial;
+ padding:20px;
 }
 
 .login-box{
  background:#2b3048;
  padding:40px;
  border-radius:15px;
- width:350px;
+ width:100%;
+ max-width:350px;
  text-align:center;
  box-shadow:0 15px 30px rgba(0,0,0,0.4);
 }
@@ -28,10 +33,12 @@ body{
 .login-box img{
  width:80px;
  margin-bottom:15px;
+ border-radius:10px;
 }
 
 .login-box h2{
  margin-bottom:25px;
+ color:white;
 }
 
 .form-group{
@@ -42,6 +49,7 @@ body{
 .form-group label{
  display:block;
  margin-bottom:5px;
+ color:white;
 }
 
 .form-group input{
@@ -50,6 +58,7 @@ body{
  border-radius:8px;
  border:none;
  outline:none;
+ font-size:14px;
 }
 
 .login-btn{
@@ -68,6 +77,21 @@ body{
  background:#219150;
  transform:scale(1.03);
 }
+
+/* RESPONSIVE */
+
+@media(max-width:500px){
+
+ .login-box{
+  padding:25px;
+ }
+
+ .login-box h2{
+  font-size:20px;
+ }
+
+}
+
 </style>
 
 </head>
@@ -80,17 +104,36 @@ body{
 
 <h2>SMA N1 PRAYA BARAT</h2>
 
+<!-- USERNAME -->
 <div class="form-group">
+
 <label>Username</label>
-<input id="user">
+
+<input 
+ type="text"
+ id="user"
+ placeholder="Masukkan username"
+>
+
 </div>
 
+<!-- PASSWORD -->
 <div class="form-group">
+
 <label>Password</label>
-<input type="password" id="pass">
+
+<input 
+ type="password"
+ id="pass"
+ placeholder="Masukkan password"
+>
+
 </div>
 
-<button class="login-btn" onclick="login()">Login</button>
+<!-- BUTTON -->
+<button class="login-btn" onclick="login()">
+ Login
+</button>
 
 </div>
 
@@ -98,29 +141,85 @@ body{
 
 async function login(){
 
- const r = await fetch("http://127.0.0.1:5000/login",{
+ // ================= REQUEST LOGIN =================
+ const r = await fetch(
+  "http://127.0.0.1:5000/login",
+ {
+
   method:"POST",
-  headers:{"Content-Type":"application/json"},
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
   body:JSON.stringify({
+
    username:user.value,
    password:pass.value
+
   })
+
  })
 
+ // ================= RESPONSE =================
  const d = await r.json()
 
+ // ================= LOGIN GAGAL =================
  if(!d.ok){
+
   alert("Login gagal")
   return
+
  }
 
-localStorage.setItem("username", user.value)
-localStorage.setItem("role", d.role)
-localStorage.setItem("nama", d.nama) // 🔥 INI PENTING
+ // ================= SIMPAN LOGIN =================
 
- if(d.role=="admin") location="/sma/admin.html"
- if(d.role=="guru") location="/sma/guru.html"
- if(d.role=="siswa") location="/sma/siswa.html"
+ // versi lama
+ localStorage.setItem(
+  "username",
+  user.value
+ )
+
+ localStorage.setItem(
+  "role",
+  d.role
+ )
+
+ localStorage.setItem(
+  "nama",
+  d.nama
+ )
+
+ // versi object lengkap
+ localStorage.setItem(
+  "user",
+  JSON.stringify({
+
+   username:user.value,
+   role:d.role,
+   nama:d.nama
+
+  })
+ )
+
+ // ================= REDIRECT =================
+ if(d.role=="admin"){
+
+  location="/sma/admin.html"
+
+ }
+
+ else if(d.role=="guru"){
+
+  location="/sma/guru.html"
+
+ }
+
+ else if(d.role=="siswa"){
+
+  location="/sma/siswa.html"
+
+ }
 
 }
 

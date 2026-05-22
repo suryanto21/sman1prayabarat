@@ -3,7 +3,7 @@
  margin:0;
  padding:0;
  box-sizing:border-box;
- font-family: Arial, sans-serif;
+ font-family:Arial,sans-serif;
 }
 
 /* ================= BODY ================= */
@@ -11,10 +11,10 @@ body{
  background:#1e2235;
  color:white;
  min-height:100vh;
- overflow: auto;
+ overflow-x:hidden;
 }
 
-/* ================= LAYOUT DASHBOARD ================= */
+/* ================= LAYOUT ================= */
 .layout{
  display:flex;
  min-height:100vh;
@@ -22,25 +22,28 @@ body{
 
 /* ================= SIDEBAR ================= */
 .sidebar{
- width:230px;
+ width:240px;
  background:#272b3d;
  padding:20px;
+ flex-shrink:0;
 }
 
 .sidebar h2{
  text-align:center;
  margin-bottom:20px;
+ font-size:22px;
 }
 
 .sidebar a{
  display:block;
- padding:10px;
- margin:6px 0;
+ padding:12px;
+ margin:8px 0;
  text-decoration:none;
  color:white;
  background:#3498db;
- border-radius:6px;
+ border-radius:8px;
  transition:0.3s;
+ font-size:15px;
 }
 
 .sidebar a:hover{
@@ -52,6 +55,8 @@ body{
 .main{
  flex:1;
  padding:20px;
+ width:100%;
+ overflow:auto;
 }
 
 /* ================= TOPBAR ================= */
@@ -59,72 +64,89 @@ body{
  display:flex;
  justify-content:space-between;
  align-items:center;
+ gap:10px;
+ flex-wrap:wrap;
  margin-bottom:20px;
 }
 
 /* ================= CARDS ================= */
 .cards{
  display:grid;
- grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
  gap:15px;
 }
 
 .card{
  background:#272b3d;
  padding:20px;
- border-radius:10px;
+ border-radius:12px;
  text-align:center;
  box-shadow:0 10px 20px rgba(0,0,0,0.3);
  cursor:pointer;
+ transition:0.3s;
+}
+
+.card:hover{
+ transform:translateY(-5px);
+}
+
+.card h3{
+ font-size:20px;
 }
 
 .card p{
  color:#aaa;
  margin-top:10px;
+ font-size:14px;
 }
 
-/* ================= FORM CENTER ================= */
+/* ================= FORM ================= */
 .form-container{
  display:flex;
  justify-content:center;
- align-items:flex-start; /* 🔥 ganti dari center */
- padding-top:40px; /* 🔥 kasih jarak atas */
- padding-bottom:40px;
+ align-items:flex-start;
+ padding:30px 15px;
 }
 
 .form-box{
  background:#272b3d;
  padding:25px;
- border-radius:10px;
+ border-radius:12px;
  width:100%;
- max-width:400px;
+ max-width:450px;
  box-shadow:0 10px 20px rgba(0,0,0,0.3);
 }
 
 .form-box h2{
  text-align:center;
- margin-bottom:15px;
+ margin-bottom:20px;
 }
 
 /* ================= INPUT ================= */
-input, select{
+input,
+select,
+textarea{
  width:100%;
- padding:10px;
+ padding:12px;
  margin-top:8px;
  border:none;
- border-radius:5px;
+ border-radius:6px;
+ outline:none;
+ font-size:14px;
 }
 
 /* ================= BUTTON ================= */
 button{
  width:100%;
- padding:10px;
- margin-top:12px;
+ padding:12px;
+ margin-top:15px;
  background:#27ae60;
  border:none;
  border-radius:6px;
  color:white;
  cursor:pointer;
+ font-size:15px;
+ transition:0.3s;
 }
 
 button:hover{
@@ -132,17 +154,25 @@ button:hover{
 }
 
 /* ================= TABLE ================= */
+.table-container{
+ width:100%;
+ overflow-x:auto;
+}
+
 table{
  width:100%;
  border-collapse:collapse;
  background:#272b3d;
  margin-top:15px;
+ min-width:700px;
 }
 
-th, td{
- padding:10px;
+th,
+td{
+ padding:12px;
  border-bottom:1px solid #444;
  text-align:left;
+ font-size:14px;
 }
 
 th{
@@ -152,17 +182,16 @@ th{
 /* ================= LOGO ================= */
 .logo{
  text-align:center;
- margin-bottom:15px;
+ margin-bottom:20px;
 }
 
 .logo img{
- width:70px;
+ width:80px;
+ max-width:100%;
 }
 
-/* ================= RESPONSIVE ================= */
-
-/* Tablet & HP */
-@media (max-width:768px){
+/* ================= RESPONSIVE TABLET ================= */
+@media(max-width:768px){
 
  .layout{
   flex-direction:column;
@@ -170,34 +199,87 @@ th{
 
  .sidebar{
   width:100%;
-  text-align:center;
+ }
+
+ .sidebar a{
+  font-size:14px;
+ }
+
+ .main{
+  padding:15px;
+ }
+
+ .cards{
+  grid-template-columns:1fr;
+ }
+
+ .topbar{
+  flex-direction:column;
+  align-items:flex-start;
+ }
+
+ .form-box{
+  max-width:100%;
+ }
+
+ table{
+  min-width:600px;
+ }
+
+}
+
+/* ================= RESPONSIVE HP ================= */
+@media(max-width:480px){
+
+ body{
+  font-size:14px;
+ }
+
+ .sidebar h2{
+  font-size:18px;
+ }
+
+ .sidebar a{
+  padding:10px;
+  font-size:13px;
  }
 
  .main{
   padding:10px;
  }
 
- table{
-  display:block;
-  overflow-x:auto;
-  white-space:nowrap;
+ .card{
+  padding:15px;
  }
 
-}
-
-/* HP kecil */
-@media (max-width:480px){
-
- h2{
+ .card h3{
   font-size:18px;
  }
 
- th, td{
+ .card p{
   font-size:12px;
  }
 
+ input,
+ select,
+ textarea{
+  padding:10px;
+  font-size:13px;
+ }
+
  button{
+  padding:10px;
+  font-size:13px;
+ }
+
+ th,
+ td{
+  padding:8px;
   font-size:12px;
+ }
+
+ .logo img{
+  width:60px;
  }
 
 }

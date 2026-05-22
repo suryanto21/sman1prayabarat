@@ -3,10 +3,13 @@
 <head>
 
 <title>Presensi Saya</title>
+
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <link rel="stylesheet" href="/css/style.css">
 
 <style>
+
 body{
  margin:0;
  font-family:Arial;
@@ -16,10 +19,13 @@ body{
 
 .container{
  padding:20px;
+ max-width:800px;
+ margin:auto;
 }
 
 h2{
  text-align:center;
+ margin-bottom:20px;
 }
 
 .card{
@@ -27,12 +33,53 @@ h2{
  padding:15px;
  border-radius:10px;
  margin-bottom:10px;
+ box-shadow:0 10px 20px rgba(0,0,0,0.3);
 }
 
-.hadir{ color:lightgreen }
-.izin{ color:orange }
-.sakit{ color:yellow }
-.alfa{ color:red }
+.card b{
+ color:#3498db;
+}
+
+/* STATUS */
+
+.hadir{
+ color:lightgreen;
+ font-weight:bold;
+}
+
+.izin{
+ color:orange;
+ font-weight:bold;
+}
+
+.sakit{
+ color:yellow;
+ font-weight:bold;
+}
+
+.alfa{
+ color:red;
+ font-weight:bold;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:600px){
+
+ .container{
+  padding:10px;
+ }
+
+ h2{
+  font-size:20px;
+ }
+
+ .card{
+  font-size:14px;
+ }
+
+}
+
 </style>
 
 </head>
@@ -49,34 +96,105 @@ h2{
 
 <script>
 
-// ambil nama dari login
-const nama = localStorage.getItem("nama")
+// ================= AMBIL DATA LOGIN =================
+const user = JSON.parse(
+ localStorage.getItem("user")
+)
 
-fetch("http://127.0.0.1:5000/presensi-siswa/" + nama)
-.then(res => res.json())
-.then(data => {
+// ================= LOAD PRESENSI =================
+async function loadPresensi(){
 
-    let html = ""
+ // ambil semua presensi
+ const r = await fetch(
+  "http://127.0.0.1:5000/get-presensi"
+ )
 
-    if(data.length == 0){
-        html = "<p>Tidak ada data presensi</p>"
+ const presensi = await r.json()
+
+ // filter hasil
+ let hasil = []
+
+ presensi.forEach(p => {
+
+  // cek data array presensi
+  if(p.data){
+
+   p.data.forEach(s => {
+
+    // cocokkan siswa login
+    if(
+     s.nama &&
+     s.nama.toLowerCase().trim() ==
+     user.nama.toLowerCase().trim()
+    ){
+
+     hasil.push({
+
+      tanggal: p.tanggal,
+      kelas: s.kelas,
+      status: s.status,
+      mapel: p.mapel || "-"
+
+     })
+
     }
 
-    data.forEach(d => {
+   })
 
-        let warna = d.status.toLowerCase()
+  }
 
-        html += `
-        <div class="card">
-            <b>Tanggal:</b> ${d.tanggal} <br>
-            <b>Kelas:</b> ${d.kelas} <br>
-            <b>Status:</b> <span class="${warna}">${d.status}</span>
-        </div>
-        `
-    })
+ })
 
-    document.getElementById("list").innerHTML = html
-})
+ // ================= TAMPILKAN =================
+ let html = ""
+
+ if(hasil.length == 0){
+
+  html = `
+  <p style="text-align:center;">
+   Tidak ada data presensi
+  </p>
+  `
+
+ }else{
+
+  hasil.forEach(d => {
+
+   let warna = d.status.toLowerCase()
+
+   html += `
+   <div class="card">
+
+    <b>Tanggal:</b>
+    ${new Date(d.tanggal).toLocaleDateString()}
+    <br><br>
+
+    <b>Kelas:</b>
+    ${d.kelas}
+    <br><br>
+
+    <b>Mata Pelajaran:</b>
+    ${d.mapel}
+    <br><br>
+
+    <b>Status:</b>
+    <span class="${warna}">
+     ${d.status}
+    </span>
+
+   </div>
+   `
+
+  })
+
+ }
+
+ document.getElementById("list").innerHTML = html
+
+}
+
+// ================= START =================
+loadPresensi()
 
 </script>
 

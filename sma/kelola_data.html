@@ -1,22 +1,43 @@
 <!DOCTYPE html>
 <html>
 <head>
+
 <title>Kelola Data</title>
 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
+
 body{
  font-family:Arial;
  background:#1e2235;
  color:white;
- padding:30px;
+ padding:20px;
+ margin:0;
 }
+
+/* TITLE */
+
+h2{
+ margin-top:30px;
+ margin-bottom:15px;
+}
+
+/* INPUT */
 
 input{
  padding:10px;
- margin:5px 0;
+ margin:5px 0 15px 0;
  border-radius:8px;
  border:none;
  width:100%;
+ box-sizing:border-box;
+}
+
+/* TABLE */
+
+.table-container{
+ overflow-x:auto;
 }
 
 table{
@@ -24,255 +45,507 @@ table{
  border-collapse:collapse;
  background:#2b3048;
  margin-bottom:30px;
+ min-width:600px;
 }
 
 th,td{
  padding:10px;
  border-bottom:1px solid #444;
+ text-align:left;
 }
 
-th{background:#3498db;}
+th{
+ background:#3498db;
+}
+
+/* BUTTON */
 
 button{
- padding:5px 10px;
+ padding:6px 12px;
  margin:2px;
  border:none;
  border-radius:5px;
  cursor:pointer;
 }
 
-.hapus{background:#e74c3c;color:white;}
-.edit{background:#f1c40f;}
-.simpan{background:#27ae60;color:white;}
+.hapus{
+ background:#e74c3c;
+ color:white;
+}
+
+.edit{
+ background:#f1c40f;
+}
+
+.simpan{
+ background:#27ae60;
+ color:white;
+}
+
+/* MODAL */
 
 .modal{
  display:none;
  position:fixed;
- top:0;left:0;
- width:100%;height:100%;
+ top:0;
+ left:0;
+ width:100%;
+ height:100%;
  background:rgba(0,0,0,0.7);
  justify-content:center;
  align-items:center;
+ padding:15px;
+ box-sizing:border-box;
 }
 
 .modal-box{
  background:#2b3048;
  padding:20px;
  border-radius:10px;
- width:300px;
+ width:100%;
+ max-width:350px;
 }
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+ body{
+  padding:10px;
+ }
+
+ th,td{
+  font-size:13px;
+ }
+
+ button{
+  font-size:12px;
+  padding:5px 8px;
+ }
+
+}
+
 </style>
 
 </head>
 
 <body>
 
+<!-- ================= DATA SISWA ================= -->
+
 <h2>DATA SISWA</h2>
 
-<input type="text" id="searchSiswa" placeholder="Cari siswa..." onkeyup="cariSiswa()">
+<input 
+ type="text"
+ id="searchSiswa"
+ placeholder="Cari siswa..."
+ onkeyup="cariSiswa()"
+>
+
+<div class="table-container">
 
 <table>
+
 <thead>
 <tr>
-<th>NIS</th>
+<th>Username</th>
 <th>Nama</th>
 <th>Kelas</th>
 <th>Wali Kelas</th>
 <th>Aksi</th>
 </tr>
 </thead>
+
 <tbody id="siswa"></tbody>
+
 </table>
+
+</div>
+
+<!-- ================= DATA GURU ================= -->
 
 <h2>DATA GURU</h2>
 
-<input type="text" id="searchGuru" placeholder="Cari guru..." onkeyup="cariGuru()">
+<input 
+ type="text"
+ id="searchGuru"
+ placeholder="Cari guru..."
+ onkeyup="cariGuru()"
+>
+
+<div class="table-container">
 
 <table>
+
 <thead>
 <tr>
-<th>NIP</th>
+<th>Username</th>
 <th>Nama</th>
 <th>Mapel</th>
 <th>Aksi</th>
 </tr>
 </thead>
+
 <tbody id="guru"></tbody>
+
 </table>
 
-<!-- MODAL SISWA (EDIT ONLY) -->
+</div>
+
+<!-- ================= MODAL SISWA ================= -->
+
 <div class="modal" id="modalSiswa">
+
 <div class="modal-box">
+
 <h3>Edit Siswa</h3>
 
-<input id="s_nis" placeholder="NIS">
+<input id="s_username" placeholder="Username">
+
 <input id="s_nama" placeholder="Nama">
+
 <input id="s_kelas" placeholder="Kelas">
+
 <input id="s_wali" placeholder="Wali Kelas">
 
-<button class="simpan" onclick="simpanSiswa()">Simpan</button>
-<button onclick="tutupSiswa()">Batal</button>
+<button class="simpan" onclick="simpanSiswa()">
+ Simpan
+</button>
+
+<button onclick="tutupSiswa()">
+ Batal
+</button>
 
 </div>
+
 </div>
 
-<!-- MODAL GURU (EDIT ONLY) -->
+<!-- ================= MODAL GURU ================= -->
+
 <div class="modal" id="modalGuru">
+
 <div class="modal-box">
+
 <h3>Edit Guru</h3>
 
-<input id="g_nip" placeholder="NIP">
+<input id="g_username" placeholder="Username">
+
 <input id="g_nama" placeholder="Nama">
+
 <input id="g_mapel" placeholder="Mapel">
 
-<button class="simpan" onclick="simpanGuru()">Simpan</button>
-<button onclick="tutupGuru()">Batal</button>
+<button class="simpan" onclick="simpanGuru()">
+ Simpan
+</button>
+
+<button onclick="tutupGuru()">
+ Batal
+</button>
 
 </div>
+
 </div>
 
 <script>
 
-let dataSiswa=[], dataGuru=[]
-let editNis="", editNip=""
+let dataSiswa = []
+let dataGuru = []
+
+let editUsernameSiswa = ""
+let editUsernameGuru = ""
 
 // ================= LOAD =================
 async function load(){
- let r1=await fetch("/get-siswa")
- dataSiswa=await r1.json()
 
- let r2=await fetch("/get-guru")
- dataGuru=await r2.json()
+ // siswa
+ let r1 = await fetch("/get-siswa")
+ dataSiswa = await r1.json()
+
+ // guru
+ let r2 = await fetch("/get-guru")
+ dataGuru = await r2.json()
 
  renderSiswa()
  renderGuru()
+
 }
 
-// ================= RENDER =================
+// ================= RENDER SISWA =================
 function renderSiswa(){
- let html=""
- dataSiswa.forEach(d=>{
-  html+=`
+
+ let html = ""
+
+ dataSiswa.forEach(d => {
+
+  html += `
   <tr>
-   <td>${d.nis}</td>
-   <td>${d.nama}</td>
-   <td>${d.kelas}</td>
-   <td>${d.wali_kelas || d.wali || '-'}</td>
+
+   <td>${d.username || d.nis || "-"}</td>
+
+   <td>${d.nama || "-"}</td>
+
+   <td>${d.kelas || "-"}</td>
+
+   <td>${d.wali_kelas || d.wali || "-"}</td>
+
    <td>
-    <button class="edit" onclick="editSiswa('${d.nis}')">Edit</button>
-    <button class="hapus" onclick="hapusSiswa('${d.nis}')">Hapus</button>
+
+    <button 
+     class="edit"
+     onclick="editSiswa('${d.username || d.nis}')"
+    >
+     Edit
+    </button>
+
+    <button 
+     class="hapus"
+     onclick="hapusSiswa('${d.username || d.nis}')"
+    >
+     Hapus
+    </button>
+
    </td>
-  </tr>`
+
+  </tr>
+  `
+
  })
- siswa.innerHTML=html
+
+ siswa.innerHTML = html
+
 }
 
+// ================= RENDER GURU =================
 function renderGuru(){
- let html=""
- dataGuru.forEach(d=>{
-  html+=`
+
+ let html = ""
+
+ dataGuru.forEach(d => {
+
+  html += `
   <tr>
-   <td>${d.nip}</td>
-   <td>${d.nama}</td>
-   <td>${d.mapel}</td>
+
+   <td>${d.username || "-"}</td>
+
+   <td>${d.nama || "-"}</td>
+
+   <td>${d.mapel || "-"}</td>
+
    <td>
-    <button class="edit" onclick="editGuru('${d.nip}')">Edit</button>
-    <button class="hapus" onclick="hapusGuru('${d.nip}')">Hapus</button>
+
+    <button 
+     class="edit"
+     onclick="editGuru('${d.username}')"
+    >
+     Edit
+    </button>
+
+    <button 
+     class="hapus"
+     onclick="hapusGuru('${d.username}')"
+    >
+     Hapus
+    </button>
+
    </td>
-  </tr>`
+
+  </tr>
+  `
+
  })
- guru.innerHTML=html
+
+ guru.innerHTML = html
+
 }
 
-// ================= SEARCH =================
+// ================= SEARCH SISWA =================
 function cariSiswa(){
- let key=searchSiswa.value.toLowerCase()
- document.querySelectorAll("#siswa tr").forEach(r=>{
-  r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none"
+
+ let key = searchSiswa.value
+ .toLowerCase()
+
+ document
+ .querySelectorAll("#siswa tr")
+ .forEach(r => {
+
+  r.style.display =
+
+   r.innerText
+   .toLowerCase()
+   .includes(key)
+
+   ? ""
+   : "none"
+
  })
+
 }
 
+// ================= SEARCH GURU =================
 function cariGuru(){
- let key=searchGuru.value.toLowerCase()
- document.querySelectorAll("#guru tr").forEach(r=>{
-  r.style.display = r.innerText.toLowerCase().includes(key) ? "" : "none"
+
+ let key = searchGuru.value
+ .toLowerCase()
+
+ document
+ .querySelectorAll("#guru tr")
+ .forEach(r => {
+
+  r.style.display =
+
+   r.innerText
+   .toLowerCase()
+   .includes(key)
+
+   ? ""
+   : "none"
+
  })
+
 }
 
-// ================= EDIT =================
-function editSiswa(nis){
- let d=dataSiswa.find(x=>x.nis==nis)
+// ================= EDIT SISWA =================
+function editSiswa(username){
 
- editNis=nis
+ let d = dataSiswa.find(x =>
 
- s_nis.value=d.nis
- s_nama.value=d.nama
- s_kelas.value=d.kelas
+  (x.username || x.nis) == username
+
+ )
+
+ editUsernameSiswa = username
+
+ s_username.value = d.username || d.nis || ""
+ s_nama.value = d.nama || ""
+ s_kelas.value = d.kelas || ""
  s_wali.value = d.wali_kelas || d.wali || ""
 
- modalSiswa.style.display="flex"
+ modalSiswa.style.display = "flex"
+
 }
 
-function editGuru(nip){
- let d=dataGuru.find(x=>x.nip==nip)
+// ================= EDIT GURU =================
+function editGuru(username){
 
- editNip=nip
+ let d = dataGuru.find(x =>
 
- g_nip.value=d.nip
- g_nama.value=d.nama
- g_mapel.value=d.mapel
+  x.username == username
 
- modalGuru.style.display="flex"
+ )
+
+ editUsernameGuru = username
+
+ g_username.value = d.username || ""
+ g_nama.value = d.nama || ""
+ g_mapel.value = d.mapel || ""
+
+ modalGuru.style.display = "flex"
+
 }
 
-// ================= SIMPAN =================
+// ================= SIMPAN SISWA =================
 async function simpanSiswa(){
- await fetch("/update-siswa/"+editNis,{
+
+ await fetch(
+  "/update-siswa/" + editUsernameSiswa,
+ {
+
   method:"PUT",
-  headers:{"Content-Type":"application/json"},
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
   body:JSON.stringify({
-   nis:s_nis.value,
+
+   username:s_username.value,
    nama:s_nama.value,
    kelas:s_kelas.value,
    wali_kelas:s_wali.value
+
   })
+
  })
 
  tutupSiswa()
+
  load()
+
 }
 
+// ================= SIMPAN GURU =================
 async function simpanGuru(){
- await fetch("/update-guru/"+editNip,{
+
+ await fetch(
+  "/update-guru/" + editUsernameGuru,
+ {
+
   method:"PUT",
-  headers:{"Content-Type":"application/json"},
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
   body:JSON.stringify({
-   nip:g_nip.value,
+
+   username:g_username.value,
    nama:g_nama.value,
    mapel:g_mapel.value
+
   })
+
  })
 
  tutupGuru()
+
  load()
+
 }
 
-// ================= DELETE =================
-async function hapusSiswa(nis){
- if(!confirm("Yakin hapus?")) return
- await fetch("/hapus-siswa/"+nis,{method:"DELETE"})
+// ================= HAPUS SISWA =================
+async function hapusSiswa(username){
+
+ if(!confirm("Yakin hapus siswa?"))
+  return
+
+ await fetch(
+  "/hapus-siswa/" + username,
+ {
+  method:"DELETE"
+ })
+
  load()
+
 }
 
-async function hapusGuru(nip){
- if(!confirm("Yakin hapus?")) return
- await fetch("/hapus-guru/"+nip,{method:"DELETE"})
+// ================= HAPUS GURU =================
+async function hapusGuru(username){
+
+ if(!confirm("Yakin hapus guru?"))
+  return
+
+ await fetch(
+  "/hapus-guru/" + username,
+ {
+  method:"DELETE"
+ })
+
  load()
+
 }
 
 // ================= CLOSE =================
-function tutupSiswa(){modalSiswa.style.display="none"}
-function tutupGuru(){modalGuru.style.display="none"}
+function tutupSiswa(){
+
+ modalSiswa.style.display = "none"
+
+}
+
+function tutupGuru(){
+
+ modalGuru.style.display = "none"
+
+}
 
 // ================= INIT =================
 load()

@@ -13,8 +13,9 @@ body{
  display:flex;
  justify-content:center;
  align-items:center;
- height:100vh;
+ min-height:100vh;
  color:white;
+ padding:20px;
 }
 
 /* CARD */
@@ -23,7 +24,8 @@ body{
  background:#2b3048;
  padding:30px;
  border-radius:15px;
- width:380px;
+ width:100%;
+ max-width:400px;
  box-shadow:0 15px 30px rgba(0,0,0,0.4);
 }
 
@@ -43,7 +45,8 @@ body{
  margin-bottom:5px;
 }
 
-.form-group input{
+.form-group input,
+.form-group select{
  width:100%;
  padding:12px;
  border-radius:8px;
@@ -71,6 +74,16 @@ button:hover{
  transform:scale(1.03);
 }
 
+/* RESPONSIVE */
+
+@media(max-width:500px){
+
+ .form-card{
+  padding:20px;
+ }
+
+}
+
 </style>
 
 </head>
@@ -81,26 +94,44 @@ button:hover{
 
 <h2>Input Jadwal</h2>
 
+<!-- KELAS -->
 <div class="form-group">
 <label>Kelas</label>
-<input id="kelas">
+
+<select id="kelas">
+ <option value="">-- Pilih Kelas --</option>
+</select>
+
 </div>
 
+<!-- MAPEL -->
 <div class="form-group">
 <label>Mata Pelajaran</label>
 <input id="mapel">
 </div>
 
+<!-- GURU -->
 <div class="form-group">
 <label>Guru</label>
 <input id="guru">
 </div>
 
+<!-- HARI -->
 <div class="form-group">
 <label>Hari</label>
-<input id="hari" placeholder="Contoh: Senin">
+
+<select id="hari">
+ <option>Senin</option>
+ <option>Selasa</option>
+ <option>Rabu</option>
+ <option>Kamis</option>
+ <option>Jumat</option>
+ <option>Sabtu</option>
+</select>
+
 </div>
 
+<!-- JAM -->
 <div class="form-group">
 <label>Jam</label>
 <input id="jam" placeholder="Contoh: 08:00-09:00">
@@ -109,41 +140,81 @@ button:hover{
 <button onclick="simpan()">Simpan</button>
 
 <p style="text-align:center;margin-top:10px;">
-<a href="admin.html" style="color:#3498db;">← Kembali</a>
+<a href="admin.html" style="color:#3498db;">
+← Kembali
+</a>
 </p>
 
 </div>
 
 <script>
 
-async function simpan(){
+// ================= LOAD KELAS DARI DB =================
+async function loadKelas(){
 
- const data={
-  kelas:kelas.value,
-  mapel:mapel.value,
-  guru:guru.value,
-  hari:hari.value,
-  jam:jam.value
- }
+ let r = await fetch("http://127.0.0.1:5000/get_kelas")
 
- const r=await fetch("http://127.0.0.1:5000/tambah-jadwal",{
-  method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify(data)
+ let data = await r.json()
+
+ let html = `
+ <option value="">-- Pilih Kelas --</option>
+ `
+
+ data.forEach(k=>{
+
+  html += `
+  <option value="${k}">
+   ${k}
+  </option>
+  `
+
  })
 
- const d=await r.json()
+ kelas.innerHTML = html
+}
+
+// ================= SIMPAN =================
+async function simpan(){
+
+ const data = {
+
+  kelas: kelas.value,
+  mapel: mapel.value,
+  guru: guru.value,
+  hari: hari.value,
+  jam: jam.value
+
+ }
+
+ const r = await fetch(
+  "http://127.0.0.1:5000/tambah-jadwal",
+ {
+
+  method:"POST",
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
+  body:JSON.stringify(data)
+
+ })
+
+ const d = await r.json()
 
  alert(d.msg)
 
- // reset form
+ // reset
  kelas.value=""
  mapel.value=""
  guru.value=""
- hari.value=""
+ hari.value="Senin"
  jam.value=""
 
 }
+
+// ================= START =================
+loadKelas()
 
 </script>
 

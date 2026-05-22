@@ -1,107 +1,381 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Presensi Guru</title>
+
+<title>Presensi Siswa</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+
 body{
  font-family:Arial;
  background:#1e2235;
  color:white;
+ margin:0;
+ padding:0;
 }
 
 .container{
- max-width:500px;
+ max-width:700px;
  margin:auto;
  padding:20px;
 }
 
-input{
- width:100%;
- padding:10px;
- margin-bottom:10px;
- border-radius:8px;
- border:none;
+h2{
+ text-align:center;
+ margin-bottom:20px;
 }
+
+/* INPUT & SELECT */
+
+input,select{
+ width:100%;
+ padding:12px;
+ margin-bottom:15px;
+ border:none;
+ border-radius:8px;
+ outline:none;
+ box-sizing:border-box;
+}
+
+/* CARD */
 
 .card{
  background:#2b3048;
  padding:15px;
  border-radius:10px;
  margin-bottom:10px;
+ box-shadow:0 5px 15px rgba(0,0,0,0.3);
 }
+
+.card b{
+ display:block;
+ margin-bottom:10px;
+}
+
+/* BUTTON */
+
+button{
+ width:100%;
+ padding:12px;
+ background:#27ae60;
+ border:none;
+ border-radius:8px;
+ color:white;
+ cursor:pointer;
+ font-size:16px;
+ transition:0.3s;
+}
+
+button:hover{
+ background:#219150;
+ transform:scale(1.02);
+}
+
+/* RESPONSIVE */
+
+@media(max-width:600px){
+
+ .container{
+  padding:10px;
+ }
+
+ h2{
+  font-size:20px;
+ }
+
+ button{
+  font-size:14px;
+ }
+
+}
+
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>Presensi Guru</h2>
+<h2>Presensi Siswa</h2>
 
-<input type="text" id="searchGuru" placeholder="Cari guru..." onkeyup="filterGuru()">
+<!-- PILIH KELAS -->
+<select id="kelas" onchange="loadJam();loadSiswa()">
+ <option value="">-- Pilih Kelas --</option>
+</select>
 
-<div id="listGuru"></div>
+<!-- PILIH JAM -->
+<select id="jam">
+ <option value="">-- Pilih Jam Pelajaran --</option>
+</select>
 
-<button onclick="simpan()">Simpan</button>
+<!-- SEARCH -->
+<input 
+ type="text" 
+ id="searchSiswa" 
+ placeholder="Cari siswa..."
+ onkeyup="filterSiswa()"
+>
+
+<!-- LIST SISWA -->
+<div id="listSiswa"></div>
+
+<button onclick="simpan()">
+ Simpan Presensi
+</button>
 
 </div>
 
 <script>
 
-let dataGuru=[]
+let dataSiswa=[]
 
-async function loadGuru(){
- let r=await fetch("/get-guru")
- dataGuru=await r.json()
+// ================= LOAD KELAS =================
+async function loadKelas(){
 
- let html=""
- dataGuru.forEach((g,i)=>{
-  html+=`
+ let r = await fetch(
+  "http://127.0.0.1:5000/get_kelas"
+ )
+
+ let data = await r.json()
+
+ let html = `
+ <option value="">
+  -- Pilih Kelas --
+ </option>
+ `
+
+ data.forEach(k=>{
+
+  html += `
+  <option value="${k}">
+   ${k}
+  </option>
+  `
+
+ })
+
+ kelas.innerHTML = html
+}
+
+// ================= LOAD JAM =================
+async function loadJam(){
+
+ let k = kelas.value
+
+ if(!k) return
+
+ let r = await fetch(
+  "http://127.0.0.1:5000/get-jadwal"
+ )
+
+ let jadwal = await r.json()
+
+ // filter sesuai kelas
+ jadwal = jadwal.filter(j =>
+
+  j.kelas &&
+  j.kelas.toLowerCase().trim() ==
+  k.toLowerCase().trim()
+
+ )
+
+ let html = `
+ <option value="">
+  -- Pilih Jam Pelajaran --
+ </option>
+ `
+
+ jadwal.forEach(j => {
+
+  html += `
+  <option value="${j.jam}">
+   ${j.hari} | ${j.jam} | ${j.mapel}
+  </option>
+  `
+
+ })
+
+ jam.innerHTML = html
+}
+
+// ================= LOAD SISWA =================
+async function loadSiswa(){
+
+ let k = kelas.value
+
+ if(!k){
+
+  listSiswa.innerHTML = ""
+  return
+
+ }
+
+ let r = await fetch(
+  "http://127.0.0.1:5000/get_siswa_by_kelas/" + k
+ )
+
+ dataSiswa = await r.json()
+
+ let html = ""
+
+ dataSiswa.forEach((s,i)=>{
+
+  html += `
   <div class="card">
-   <b>${g.nama}</b>
+
+   <b>${s.nama}</b>
+
    <select id="s${i}">
-    <option>Hadir</option>
-    <option>Izin</option>
-    <option>Sakit</option>
-    <option>Alfa</option>
+
+    <option value="Hadir">
+     Hadir
+    </option>
+
+    <option value="Izin">
+     Izin
+    </option>
+
+    <option value="Sakit">
+     Sakit
+    </option>
+
+    <option value="Alfa">
+     Alfa
+    </option>
+
    </select>
-  </div>`
+
+  </div>
+  `
+
  })
 
- listGuru.innerHTML=html
+ listSiswa.innerHTML = html
 }
 
-function filterGuru(){
- let key=searchGuru.value.toLowerCase().trim()
- document.querySelectorAll(".card").forEach(c=>{
-  c.style.display = c.innerText.toLowerCase().includes(key) ? "block":"none"
+// ================= FILTER =================
+function filterSiswa(){
+
+ let key = searchSiswa.value
+  .toLowerCase()
+  .trim()
+
+ document.querySelectorAll(".card")
+ .forEach(c=>{
+
+  c.style.display =
+
+   c.innerText
+   .toLowerCase()
+   .includes(key)
+
+   ? "block"
+   : "none"
+
  })
+
 }
 
+// ================= SIMPAN =================
 async function simpan(){
 
- let data=[]
+ // validasi
+ if(!kelas.value){
 
- dataGuru.forEach((g,i)=>{
+  alert("Pilih kelas dulu")
+  return
+
+ }
+
+ if(!jam.value){
+
+  alert("Pilih jam pelajaran")
+  return
+
+ }
+
+ // ================= AMBIL JADWAL =================
+ let rj = await fetch(
+  "http://127.0.0.1:5000/get-jadwal"
+ )
+
+ let jadwal = await rj.json()
+
+ // ================= CARI MAPEL =================
+ let sekarang = jadwal.find(j =>
+
+  j.kelas &&
+  j.jam &&
+
+  j.kelas.toLowerCase().trim() ==
+  kelas.value.toLowerCase().trim()
+
+  &&
+
+  j.jam == jam.value
+
+ )
+
+ let mapel = sekarang
+  ? sekarang.mapel
+  : "-"
+
+ // ================= DATA PRESENSI =================
+ let data = []
+
+ dataSiswa.forEach((s,i)=>{
+
   data.push({
-   nip:g.nip,
-   nama:g.nama,
-   status:document.getElementById("s"+i).value
+
+   nis:s.nis,
+   nama:s.nama,
+   kelas:kelas.value,
+   status:document
+    .getElementById("s"+i)
+    .value
+
   })
+
  })
 
- await fetch("/presensi-guru",{
+ // ================= SIMPAN =================
+ await fetch(
+  "http://127.0.0.1:5000/presensi",
+ {
+
   method:"POST",
-  headers:{"Content-Type":"application/json"},
-  body:JSON.stringify({tanggal:new Date(),data})
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
+  body:JSON.stringify({
+
+   tanggal:new Date(),
+
+   kelas:kelas.value,
+
+   jam:jam.value,
+
+   mapel:mapel,
+
+   data:data
+
+  })
+
  })
 
- alert("Tersimpan")
+ alert("Presensi berhasil disimpan")
+
 }
 
-loadGuru()
+// ================= START =================
+loadKelas()
 
 </script>
+
 </body>
 </html>

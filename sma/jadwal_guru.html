@@ -2,7 +2,7 @@
 <html>
 <head>
 
-<title>Jadwal Guru</title>
+<title>Jadwal Pelajaran</title>
 
 <style>
 
@@ -11,71 +11,19 @@ body{
  font-family:Arial;
  background:#1e2235;
  color:white;
-}
-
-/* CONTAINER */
-
-.container{
- max-width:900px;
- margin:50px auto;
+ padding:30px;
 }
 
 /* TITLE */
 
 h2{
- text-align:center;
- margin-bottom:30px;
-}
-
-/* CARD */
-
-.card{
- background:#2b3048;
- padding:20px;
- border-radius:12px;
- box-shadow:0 10px 25px rgba(0,0,0,0.3);
-}
-
-/* SEARCH BOX */
-
-.search-box{
- display:flex;
- gap:10px;
- justify-content:center;
- align-items:center;
-}
-
-/* INPUT */
-
-input{
- padding:12px;
- border-radius:8px;
- border:none;
- width:300px;
- outline:none;
-}
-
-/* BUTTON */
-
-button{
- padding:12px 18px;
- background:#3498db;
- border:none;
- border-radius:8px;
- color:white;
- cursor:pointer;
- transition:0.3s;
-}
-
-button:hover{
- background:#2980b9;
- transform:scale(1.05);
+ margin-bottom:20px;
 }
 
 /* TABLE */
 
-.table-box{
- margin-top:25px;
+.table-container{
+ overflow-x:auto;
 }
 
 table{
@@ -84,7 +32,8 @@ table{
  background:#2b3048;
  border-radius:10px;
  overflow:hidden;
- box-shadow:0 10px 20px rgba(0,0,0,0.3);
+ box-shadow:0 10px 25px rgba(0,0,0,0.3);
+ min-width:700px;
 }
 
 thead{
@@ -92,7 +41,7 @@ thead{
 }
 
 th{
- padding:14px;
+ padding:15px;
  text-align:left;
 }
 
@@ -114,13 +63,53 @@ tbody tr:hover{
  transition:0.3s;
 }
 
-/* EMPTY TEXT */
+/* BUTTON */
+
+.btn{
+ padding:8px 12px;
+ border:none;
+ border-radius:6px;
+ cursor:pointer;
+ color:white;
+ margin-right:5px;
+}
+
+.edit{
+ background:#f39c12;
+}
+
+.delete{
+ background:#e74c3c;
+}
+
+/* FIX UNDEFINED */
 
 .empty{
- text-align:center;
  color:#aaa;
  font-style:italic;
- padding:15px;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+ body{
+  padding:10px;
+ }
+
+ h2{
+  font-size:20px;
+ }
+
+ th,td{
+  font-size:13px;
+ }
+
+ .btn{
+  padding:6px 10px;
+  font-size:12px;
+ }
+
 }
 
 </style>
@@ -129,28 +118,20 @@ tbody tr:hover{
 
 <body>
 
-<div class="container">
+<h2>Jadwal Pelajaran</h2>
 
-<h2>Cari Jadwal Guru</h2>
-
-<div class="card">
-
-<div class="search-box">
-<input id="guru" placeholder="Masukkan Nama Guru">
-<button onclick="cari()">Cari</button>
-</div>
-
-</div>
-
-<div class="table-box">
+<div class="table-container">
 
 <table>
+
 <thead>
 <tr>
 <th>Kelas</th>
 <th>Mapel</th>
+<th>Guru</th>
 <th>Hari</th>
 <th>Jam</th>
+<th>Aksi</th>
 </tr>
 </thead>
 
@@ -160,40 +141,147 @@ tbody tr:hover{
 
 </div>
 
-</div>
-
 <script>
 
-async function cari(){
+// ================= LOAD DATA =================
+async function load(){
 
- const nama = document.getElementById("guru").value
+ const r = await fetch(
+  "http://127.0.0.1:5000/get-jadwal"
+ )
 
- const r = await fetch("http://127.0.0.1:5000/jadwal-guru/" + nama)
  const d = await r.json()
 
- let html=""
+ let html = ""
 
- if(d.length == 0){
-  html = "<tr><td colspan='4' class='empty'>Tidak ada jadwal ditemukan</td></tr>"
- }else{
+ d.forEach((j,i) => {
 
-  d.forEach(j => {
+  html += `
+  <tr>
 
-   html += `
-   <tr>
-    <td>${j.kelas || '-'}</td>
-    <td>${j.mapel || '-'}</td>
-    <td>${j.hari || '-'}</td>
-    <td>${j.jam || '-'}</td>
-   </tr>
-   `
-  })
+   <td>${j.kelas || '<span class="empty">-</span>'}</td>
 
- }
+   <td>${j.mapel || '<span class="empty">-</span>'}</td>
+
+   <td>${j.guru || '<span class="empty">-</span>'}</td>
+
+   <td>${j.hari || '<span class="empty">-</span>'}</td>
+
+   <td>${j.jam || '<span class="empty">-</span>'}</td>
+
+   <td>
+
+    <button 
+     class="btn edit"
+     onclick="editData('${j.kelas}','${j.mapel}','${j.guru}','${j.hari}','${j.jam}')"
+    >
+     Edit
+    </button>
+
+    <button 
+     class="btn delete"
+     onclick="hapusData('${j.kelas}','${j.mapel}','${j.hari}')"
+    >
+     Hapus
+    </button>
+
+   </td>
+
+  </tr>
+  `
+ })
 
  document.getElementById("data").innerHTML = html
 
 }
+
+// ================= EDIT =================
+async function editData(kelas,mapel,guru,hari,jam){
+
+ let kelasBaru = prompt("Edit kelas", kelas)
+ if(kelasBaru===null) return
+
+ let mapelBaru = prompt("Edit mapel", mapel)
+ if(mapelBaru===null) return
+
+ let guruBaru = prompt("Edit guru", guru)
+ if(guruBaru===null) return
+
+ let hariBaru = prompt("Edit hari", hari)
+ if(hariBaru===null) return
+
+ let jamBaru = prompt("Edit jam", jam)
+ if(jamBaru===null) return
+
+ await fetch(
+  "http://127.0.0.1:5000/update-jadwal",
+ {
+
+  method:"PUT",
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
+  body:JSON.stringify({
+
+   kelasLama:kelas,
+   mapelLama:mapel,
+   hariLama:hari,
+
+   kelas:kelasBaru,
+   mapel:mapelBaru,
+   guru:guruBaru,
+   hari:hariBaru,
+   jam:jamBaru
+
+  })
+
+ })
+
+ alert("Jadwal berhasil diupdate")
+
+ load()
+
+}
+
+// ================= HAPUS =================
+async function hapusData(kelas,mapel,hari){
+
+ let konfirmasi = confirm(
+  "Yakin ingin menghapus jadwal?"
+ )
+
+ if(!konfirmasi) return
+
+ await fetch(
+  "http://127.0.0.1:5000/hapus-jadwal",
+ {
+
+  method:"DELETE",
+
+  headers:{
+   "Content-Type":"application/json"
+  },
+
+  body:JSON.stringify({
+
+   kelas:kelas,
+   mapel:mapel,
+   hari:hari
+
+  })
+
+ })
+
+ alert("Jadwal berhasil dihapus")
+
+ load()
+
+}
+
+// ================= START =================
+load()
 
 </script>
 

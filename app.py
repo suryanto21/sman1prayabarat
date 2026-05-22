@@ -6,7 +6,7 @@ from datetime import datetime
 app = Flask(__name__, static_folder=".", static_url_path="")
 CORS(app)
 
-# ================= DB =================
+# ================= DATABASE =================
 client = MongoClient("mongodb://localhost:27017/")
 db = client["db_sekolah"]
 
@@ -20,6 +20,7 @@ def home():
 # ================= LOGIN =================
 @app.route("/login", methods=["POST"])
 def login():
+
     data = request.get_json()
 
     username = str(data.get("username"))
@@ -35,16 +36,27 @@ def login():
 
     nama = ""
 
+    # ===== SISWA =====
     if user["role"] == "siswa":
-        s = db.siswa.find_one({"nis": username})
+
+        s = db.siswa.find_one({
+            "nis": username
+        })
+
         if s:
             nama = s.get("nama", "")
 
+    # ===== GURU =====
     elif user["role"] == "guru":
-        g = db.guru.find_one({"nip": username})
+
+        g = db.guru.find_one({
+            "username": username
+        })
+
         if g:
             nama = g.get("nama", "")
 
+    # ===== ADMIN =====
     elif user["role"] == "admin":
         nama = "Admin"
 
@@ -55,9 +67,10 @@ def login():
         "username": username
     })
 
-# ================= SISWA =================
+# ================= TAMBAH SISWA =================
 @app.route("/tambah-siswa", methods=["POST"])
 def tambah_siswa():
+
     data = request.get_json()
 
     db.siswa.insert_one({
@@ -74,68 +87,132 @@ def tambah_siswa():
         "role": "siswa"
     })
 
-    return jsonify({"msg":"Siswa berhasil ditambahkan"})
+    return jsonify({
+        "msg": "Siswa berhasil ditambahkan"
+    })
 
+# ================= GET SISWA =================
 @app.route("/get-siswa")
 def get_siswa():
-    return jsonify(list(db.siswa.find({}, {"_id":0})))
 
+    data = list(
+        db.siswa.find({}, {"_id":0})
+    )
+
+    return jsonify(data)
+
+# ================= UPDATE SISWA =================
 @app.route("/update-siswa/<nis>", methods=["PUT"])
 def update_siswa(nis):
+
     db.siswa.update_one(
         {"nis": nis},
         {"$set": request.get_json()}
     )
-    return jsonify({"msg":"Siswa diupdate"})
 
+    return jsonify({
+        "msg":"Siswa diupdate"
+    })
+
+# ================= HAPUS SISWA =================
 @app.route("/hapus-siswa/<nis>", methods=["DELETE"])
 def hapus_siswa(nis):
-    db.siswa.delete_one({"nis": nis})
-    db.users.delete_one({"username": nis})
-    return jsonify({"msg":"Siswa dihapus"})
 
-# ================= GURU =================
+    db.siswa.delete_one({
+        "nis": nis
+    })
+
+    db.users.delete_one({
+        "username": nis
+    })
+
+    return jsonify({
+        "msg":"Siswa dihapus"
+    })
+
+# ================= TAMBAH GURU =================
 @app.route("/tambah-guru", methods=["POST"])
 def tambah_guru():
+
     data = request.get_json()
 
     db.guru.insert_one({
-        "nip": str(data["nip"]),
+        "username": str(data["username"]),
+        "password": data["password"],
         "nama": data["nama"],
         "mapel": data["mapel"],
         "alamat": data["alamat"]
     })
 
     db.users.insert_one({
-        "username": str(data["nip"]),
+        "username": str(data["username"]),
         "password": data["password"],
         "role": "guru"
     })
 
-    return jsonify({"msg":"Guru berhasil ditambahkan"})
+    return jsonify({
+        "msg":"Guru berhasil ditambahkan"
+    })
 
+# ================= GET GURU =================
 @app.route("/get-guru")
 def get_guru():
-    return jsonify(list(db.guru.find({}, {"_id":0})))
 
-@app.route("/hapus-guru/<nip>", methods=["DELETE"])
-def hapus_guru(nip):
-    db.guru.delete_one({"nip": nip})
-    db.users.delete_one({"username": nip})
-    return jsonify({"msg":"Guru dihapus"})
+    data = list(
+        db.guru.find({}, {"_id":0})
+    )
 
-# ================= KELAS =================
+    return jsonify(data)
+
+# ================= UPDATE GURU =================
+@app.route("/update-guru/<username>", methods=["PUT"])
+def update_guru(username):
+
+    db.guru.update_one(
+        {"username": username},
+        {"$set": request.json}
+    )
+
+    return jsonify({
+        "msg":"Guru diupdate"
+    })
+
+# ================= HAPUS GURU =================
+@app.route("/hapus-guru/<username>", methods=["DELETE"])
+def hapus_guru(username):
+
+    db.guru.delete_one({
+        "username": username
+    })
+
+    db.users.delete_one({
+        "username": username
+    })
+
+    return jsonify({
+        "msg":"Guru dihapus"
+    })
+
+# ================= GET KELAS =================
 @app.route('/get_kelas')
 def get_kelas():
-    return jsonify(siswa_col.distinct("kelas"))
 
-# ================= SISWA BY KELAS =================
+    data = siswa_col.distinct("kelas")
+
+    return jsonify(data)
+
+# ================= GET SISWA BY KELAS =================
 @app.route('/get_siswa_by_kelas/<kelas>')
 def get_siswa_by_kelas(kelas):
-    data = siswa_col.find({"kelas": kelas})
+
+    data = siswa_col.find({
+        "kelas": kelas
+    })
 
     hasil = []
+
     for d in data:
+
         hasil.append({
             "nis": d["nis"],
             "nama": d["nama"]
@@ -146,11 +223,16 @@ def get_siswa_by_kelas(kelas):
 # ================= HALAMAN PRESENSI =================
 @app.route('/presensi-page')
 def presensi_page():
-    return send_from_directory("sma", "presensi.html")
+
+    return send_from_directory(
+        "sma",
+        "presensi.html"
+    )
 
 # ================= SIMPAN PRESENSI =================
 @app.route("/presensi", methods=["POST"])
 def simpan_presensi():
+
     data = request.get_json()
 
     data["tanggal"] = data.get(
@@ -159,45 +241,84 @@ def simpan_presensi():
     )
 
     db.presensi.insert_one(data)
-    return jsonify({"msg":"Presensi siswa disimpan"})
 
+    return jsonify({
+        "msg":"Presensi siswa disimpan"
+    })
+
+# ================= GET PRESENSI =================
 @app.route("/get-presensi")
 def get_presensi():
-    return jsonify(list(db.presensi.find({}, {"_id":0})))
 
-# ================= JADWAL =================
+    data = list(
+        db.presensi.find({}, {"_id":0})
+    )
+
+    return jsonify(data)
+
+# ================= TAMBAH JADWAL =================
 @app.route("/tambah-jadwal", methods=["POST"])
 def tambah_jadwal():
-    db.jadwal.insert_one(request.get_json())
-    return jsonify({"msg":"Jadwal ditambahkan"})
 
+    db.jadwal.insert_one(
+        request.get_json()
+    )
+
+    return jsonify({
+        "msg":"Jadwal ditambahkan"
+    })
+
+# ================= GET JADWAL =================
 @app.route("/get-jadwal")
 def get_jadwal():
-    return jsonify(list(db.jadwal.find({}, {"_id":0})))
 
+    data = list(
+        db.jadwal.find({}, {"_id":0})
+    )
+
+    return jsonify(data)
+
+# ================= JADWAL GURU =================
 @app.route("/jadwal-guru/<nama>")
 def jadwal_guru(nama):
-    data = list(db.jadwal.find({
-        "guru": {"$regex": nama, "$options":"i"}
-    }, {"_id":0}))
+
+    data = list(
+        db.jadwal.find({
+            "guru": {
+                "$regex": nama,
+                "$options":"i"
+            }
+        }, {"_id":0})
+    )
+
     return jsonify(data)
 
 # ================= PRESENSI GURU =================
 @app.route("/presensi-guru", methods=["POST"])
 def presensi_guru():
+
     data = request.get_json()
 
     db.presensi_guru.insert_one(data)
 
-    return jsonify({"msg":"Presensi guru berhasil disimpan"})
+    return jsonify({
+        "msg":"Presensi guru berhasil disimpan"
+    })
 
+# ================= GET PRESENSI GURU =================
 @app.route("/get-presensi-guru")
 def get_presensi_guru():
-    return jsonify(list(db.presensi_guru.find({}, {"_id":0})))
 
-# ================= TAGIHAN =================
+    data = list(
+        db.presensi_guru.find({}, {"_id":0})
+    )
+
+    return jsonify(data)
+
+# ================= TAMBAH TAGIHAN =================
 @app.route("/tambah-tagihan", methods=["POST"])
 def tambah_tagihan():
+
     data = request.get_json()
 
     data["nis"] = str(data["nis"])
@@ -209,16 +330,25 @@ def tambah_tagihan():
         upsert=True
     )
 
-    return jsonify({"msg":"Tagihan berhasil disimpan"})
+    return jsonify({
+        "msg":"Tagihan berhasil disimpan"
+    })
 
+# ================= GET TAGIHAN =================
 @app.route("/get-tagihan/<nis>")
 def get_tagihan(nis):
-    data = db.tagihan.find_one({"nis": nis}, {"_id":0})
+
+    data = db.tagihan.find_one(
+        {"nis": nis},
+        {"_id":0}
+    )
+
     return jsonify(data if data else {})
 
 # ================= PEMBAYARAN =================
 @app.route("/pembayaran", methods=["POST"])
 def pembayaran():
+
     data = request.get_json()
 
     data["nis"] = str(data["nis"])
@@ -226,25 +356,40 @@ def pembayaran():
 
     db.pembayaran.insert_one(data)
 
-    # update status jadi lunas
     db.tagihan.update_one(
         {"nis": data["nis"]},
-        {"$set": {"status": "lunas"}}
+        {"$set": {"status":"lunas"}}
     )
 
-    return jsonify({"msg":"Pembayaran berhasil"})
+    return jsonify({
+        "msg":"Pembayaran berhasil"
+    })
 
+# ================= GET PEMBAYARAN =================
 @app.route("/get-pembayaran")
 def get_pembayaran():
-    return jsonify(list(db.pembayaran.find({}, {"_id":0})))
 
-# ================= DATA =================
+    data = list(
+        db.pembayaran.find({}, {"_id":0})
+    )
+
+    return jsonify(data)
+
+# ================= GET SEMUA DATA =================
 @app.route("/get-all-data")
 def get_all_data():
 
-    users = list(db.users.find({}, {"_id":0}))
-    siswa = list(db.siswa.find({}, {"_id":0}))
-    guru  = list(db.guru.find({}, {"_id":0}))
+    users = list(
+        db.users.find({}, {"_id":0})
+    )
+
+    siswa = list(
+        db.siswa.find({}, {"_id":0})
+    )
+
+    guru = list(
+        db.guru.find({}, {"_id":0})
+    )
 
     return jsonify({
         "users": users,
@@ -252,32 +397,35 @@ def get_all_data():
         "guru": guru
     })
 
-
-# ================= UPDATE GURU =================
-@app.route("/update-guru/<nip>", methods=["PUT"])
-def update_guru(nip):
-    db.guru.update_one(
-        {"nip": nip},
-        {"$set": request.json}
-    )
-    return jsonify({"msg":"Guru diupdate"})
-
 # ================= UPDATE USER =================
 @app.route("/update-user/<username>", methods=["PUT"])
 def update_user(username):
+
     db.users.update_one(
         {"username": username},
         {"$set": request.json}
     )
-    return jsonify({"msg":"User diupdate"})
 
-# ================= DELETE USER =================
+    return jsonify({
+        "msg":"User diupdate"
+    })
+
+# ================= HAPUS USER =================
 @app.route("/hapus-user/<username>", methods=["DELETE"])
 def hapus_user(username):
-    db.users.delete_one({"username": username})
-    return jsonify({"msg":"User dihapus"})
 
+    db.users.delete_one({
+        "username": username
+    })
+
+    return jsonify({
+        "msg":"User dihapus"
+    })
 
 # ================= RUN =================
 if __name__ == "__main__":
-    app.run(debug=True, port=5000, use_reloader=False)
+    app.run(
+        debug=True,
+        port=5000,
+        use_reloader=False
+    )

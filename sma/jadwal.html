@@ -2,64 +2,178 @@
 <html>
 <head>
 
-<title>Input Jadwal</title>
+<title>Jadwal Pelajaran Siswa</title>
+
 <link rel="stylesheet" href="/css/style.css">
 
+<style>
+
+body{
+ background:#1e2235;
+ color:white;
+ font-family:Arial;
+ margin:0;
+ padding:20px;
+}
+
+.container{
+ max-width:1000px;
+ margin:auto;
+}
+
+h2{
+ margin-bottom:20px;
+ text-align:center;
+}
+
+.table-container{
+ overflow-x:auto;
+}
+
+table{
+ width:100%;
+ border-collapse:collapse;
+ background:#272b3d;
+ border-radius:10px;
+ overflow:hidden;
+}
+
+th,td{
+ padding:12px;
+ border-bottom:1px solid #444;
+ text-align:left;
+}
+
+th{
+ background:#3498db;
+}
+
+tr:hover{
+ background:#32384f;
+}
+
+/* RESPONSIVE */
+
+@media(max-width:768px){
+
+ table{
+  min-width:700px;
+ }
+
+ h2{
+  font-size:20px;
+ }
+
+ th,td{
+  font-size:13px;
+ }
+
+}
+
+</style>
+
 </head>
+
 <body>
 
-<div class="content">
+<div class="container">
 
-<h2>Input Jadwal</h2>
+<h2>Jadwal Pelajaran</h2>
 
-<form>
+<div class="table-container">
 
-<label>Kelas</label>
-<input id="kelas">
+<table>
 
-<label>Mata Pelajaran</label>
-<input id="mapel">
+<thead>
+<tr>
+ <th>Kelas</th>
+ <th>Mata Pelajaran</th>
+ <th>Guru</th>
+ <th>Hari</th>
+ <th>Jam</th>
+</tr>
+</thead>
 
-<label>Guru</label>
-<input id="guru">
+<tbody id="tbody"></tbody>
 
-<label>Hari</label>
-<input id="hari">
+</table>
 
-<label>Jam</label>
-<input id="jam">
-
-<button type="button" onclick="simpan()">Simpan</button>
-
-</form>
+</div>
 
 </div>
 
 <script>
 
-async function simpan(){
+// ================= AMBIL DATA LOGIN =================
+const user = JSON.parse(localStorage.getItem("user"))
 
- const data={
-  kelas:kelas.value,
-  mapel:mapel.value,
-  guru:guru.value,
-  hari:hari.value,
-  jam:jam.value
+// ================= LOAD JADWAL =================
+async function loadJadwal(){
+
+ // ambil data siswa berdasarkan username/NIS
+ let rs = await fetch("http://127.0.0.1:5000/get-siswa")
+
+ let siswa = await rs.json()
+
+ // cari siswa login
+ let dataSiswa = siswa.find(
+  s => s.nis == user.username
+ )
+
+ if(!dataSiswa){
+
+  tbody.innerHTML = `
+   <tr>
+    <td colspan="5">Data siswa tidak ditemukan</td>
+   </tr>
+  `
+  return
  }
 
- const r=await fetch("http://127.0.0.1:5000/tambah-jadwal",{
+ // ambil jadwal
+ let r = await fetch("http://127.0.0.1:5000/get-jadwal")
 
- method:"POST",
- headers:{"Content-Type":"application/json"},
- body:JSON.stringify(data)
+ let jadwal = await r.json()
 
- })
+ // filter sesuai kelas siswa
+ jadwal = jadwal.filter(
+  j => j.kelas == dataSiswa.kelas
+ )
 
- const d=await r.json()
+ let html = ""
 
- alert(d.msg)
+ if(jadwal.length == 0){
 
+  html = `
+   <tr>
+    <td colspan="5">
+     Jadwal belum tersedia
+    </td>
+   </tr>
+  `
+
+ }else{
+
+  jadwal.forEach(j=>{
+
+   html += `
+   <tr>
+    <td>${j.kelas}</td>
+    <td>${j.mapel}</td>
+    <td>${j.guru}</td>
+    <td>${j.hari}</td>
+    <td>${j.jam}</td>
+   </tr>
+   `
+
+  })
+
+ }
+
+ tbody.innerHTML = html
 }
+
+loadJadwal()
 
 </script>
 
